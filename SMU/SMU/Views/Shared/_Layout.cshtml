@@ -27,17 +27,17 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ListaUsuarios">Listar usuarios</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @if (signInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
-                                <p>Hola @User.Identity.Name</p>
+                                <p>Hola @User.Identity.Name |</p>
                             </li>
                             <li class="nav-item">
-                                <p> | </p>
+                                
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-controller="Account" asp-action="Logout">

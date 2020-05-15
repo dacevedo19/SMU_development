@@ -19,16 +19,17 @@ namespace SMU.Models
         public int IdSupervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [StringLength(10, ErrorMessage = "Número invalido", MinimumLength = 7)]
-        public string Document { get; set; }
+        [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]
+        [Display(Name = "Cédula de identidad")]
+        public int Document { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [MaxLength(30)]
-        public String Name { get; set; }
+        [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
+        public string Name { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [MaxLength(30)]
-        public String Lastname { get; set; }
+        [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
+        public string Lastname { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Display(Name = "Fecha de entrada")]

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SMU.Models;
 using SMU.ViewModels;
 
 namespace SMU.Controllers
@@ -30,11 +31,15 @@ namespace SMU.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+                var user = new AppUser { 
+                    UserName = model.Email, Email = model.Email, Document = model.Document, Name = model.Name,
+                    Lastname = model.Lastname, IdSupervisor = model.IdSupervisor, EntryDate = model.EntryDate 
+                };
                 var result = await userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {

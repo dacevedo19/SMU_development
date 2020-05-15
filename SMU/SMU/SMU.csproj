@@ -6,6 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200511063322_TableChanges_Document_To_int.cs" />
+    <Compile Remove="Migrations\20200511063322_TableChanges_Document_To_int.Designer.cs" />
+    <Compile Remove="Migrations\20200511064315_TableChanges_Documento_To_Document.cs" />
+    <Compile Remove="Migrations\20200511064315_TableChanges_Documento_To_Document.Designer.cs" />
+    <Compile Remove="Migrations\20200511064817_TableChanges_Documento_To_Document_and_int.cs" />
+    <Compile Remove="Migrations\20200511064817_TableChanges_Documento_To_Document_and_int.Designer.cs" />
+    <Compile Remove="Migrations\20200511072528_Validation_Correction1.cs" />
+    <Compile Remove="Migrations\20200511072528_Validation_Correction1.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.3" />
@@ -18,10 +29,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\Account\" />
   </ItemGroup>
 
 </Project>

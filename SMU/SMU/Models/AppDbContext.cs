@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SMU.ViewModels;
 
 namespace SMU.Models
 {
@@ -23,5 +24,7 @@ namespace SMU.Models
         {
             base.OnModelCreating(modelBuilder);            
         }
+
+        public DbSet<SMU.ViewModels.RegisterViewModel> RegisterViewModel { get; set; }
     }
 }
