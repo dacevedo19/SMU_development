@@ -44,7 +44,7 @@ namespace SMU
                     )
                 );
 
-            services.AddIdentity<IdentityUser, IdentityRole>(option =>
+            services.AddIdentity<AppUser, IdentityRole>(option =>
             {
                 option.Password.RequiredLength = 8;
                 option.Password.RequiredUniqueChars = 0;

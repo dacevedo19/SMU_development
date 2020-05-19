@@ -12,16 +12,16 @@ namespace SMU.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<AppUser> userManager;
+        private readonly SignInManager<AppUser> signInManager;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
 
-        public UserManager<IdentityUser> UserManager { get; }
+        public UserManager<AppUser> UserManager { get; }
 
         [HttpGet]
         [AllowAnonymous]
@@ -43,6 +43,10 @@ namespace SMU.Controllers
                 var result = await userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if(signInManager.IsSignedIn(User) && User.IsInRole("SuperAdmin"))
+                    {
+                        return RedirectToAction("ListUsers", "Administration");
+                    }
                     await signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }

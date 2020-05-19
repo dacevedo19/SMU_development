@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +12,13 @@ using SMU.ViewModels;
 
 namespace SMU.Controllers
 {
+    [Authorize(Roles = "SuperAdmin,RecursosHumanos")]
     public class AdministrationController : Controller
     {
         private readonly RoleManager<IdentityRole> roleManager;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<AppUser> userManager;
 
-        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -77,6 +79,7 @@ namespace SMU.Controllers
                     model.Users.Add(user.UserName);
                 }
             }
+            
             return View(model);
         }
 
@@ -130,6 +133,8 @@ namespace SMU.Controllers
                 }
                 model.Add(userRoleViewModel);
             }
+
+            ViewBag.RoleName = role.Name;
             return View(model);
         }
 
@@ -171,6 +176,22 @@ namespace SMU.Controllers
             }
 
             return RedirectToAction("EditRole", new { Id = roleId });
+        }
+
+        [HttpGet]
+        public IActionResult ListUsers()
+        {
+            var users = userManager.Users;
+            return View(users);
+        }    
+        
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+
+            return View();
         }
     }
 }

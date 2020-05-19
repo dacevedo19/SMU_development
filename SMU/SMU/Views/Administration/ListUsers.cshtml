@@ -1,0 +1,57 @@
+﻿@model IEnumerable<AppUser>
+
+@{
+    ViewData["Title"] = "Listar usuarios";
+}
+
+<h1>Listar usuarios</h1>
+
+@if (Model.Any())
+{
+    <a class="btn btn-primary" style="width:auto"
+       asp-controller="Account" asp-action="Register"> Crear un nuevo usuario </a>
+    <hr />
+
+    foreach (var user in Model)
+    {
+        <div class="card">
+            <div class="card-header" style="background-color:gray">
+                <h4>@user.Name @user.Lastname</h4>
+            </div>
+            <div class="card-body" style="background-color:lightgray">
+                <div class="row">
+                    <div class="col-sm">
+                        ID: @user.Id
+                    </div>
+                    <div class="col-sm">
+                        Supervisor: @user.IdSupervisor
+                    </div>
+                    <div class="col-sm">
+                        Email: @user.Email
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer" style="background-color:lightgray">
+                <a class="btn btn-primary" style="width:auto"
+                   asp-controller="Account" asp-action="Edit"> Editar </a>
+                <a class="btn btn-danger" style="width:auto"
+                   asp-controller="Account" asp-action="Delete"> Eliminar </a>
+            </div>
+        </div>
+    }
+
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            No hay usuarios creados
+        </div>
+        <div class="card-body">
+            <h5 class="card-title"> Utilice los botones para crear un usuario </h5>
+            <a class="btn btn-primary" style="width:auto"
+               asp-controller="Account" asp-action="Register"> Crear usuario </a>
+        </div>
+    </div>
+}
+

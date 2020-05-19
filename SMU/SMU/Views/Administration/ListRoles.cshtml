@@ -5,7 +5,26 @@
 
 <h1>Adminsitrar roles</h1>
 
-@if (!Model.Any())
+@if (Model.Any())
+{
+    foreach (var role in Model)
+    {
+        <div class="card mb-3" style="outline-color:black">
+            <div class="card-header" style="background-color:gray">
+                ID: @role.Id
+            </div>
+            <div class="card-body" style="background-color:lightgray">
+                <h5 class="card-title"> Nombre: @role.Name </h5>
+            </div>
+            <div class="card-footer" style="background-color:lightgray">
+                <a class="btn btn-primary" style="width:auto" asp-controller="Administration" asp-action="EditRole" asp-route-id="@role.Id"> Editar Rol </a>
+                <a class="btn btn-danger" style="width:auto" asp-controller="Administration" asp-action="DeleteRole"> Eliminar Rol </a>
+            </div>
+        </div>
+    }
+
+}
+else
 {
     <div class="card">
         <div class="card-header">
@@ -17,27 +36,5 @@
                asp-controller="Administration" asp-action="CreateRole"> Crear rol </a>
         </div>
     </div>
-
-}
-else
-{
-    foreach (var role in Model)
-    {
-        <div class="card mb-3" style="outline-color:black">
-            <div class="card-header" style="background-color:gray">
-                ID: @role.Id
-            </div>
-            <div class="card-body">
-                <h5 class="card-title"> Nombre: @role.Name </h5>
-            </div>
-            <div class="card-footer">
-                <a class="btn btn-primary" style="width:auto" asp-controller="Administration" asp-action="EditRole" asp-route-id="@role.Id"> Editar Rol </a>
-                <a class="btn btn-danger" style="width:auto" asp-controller="Administration" asp-action="DeleteRole"> Eliminar Rol </a>
-            </div>
-        </div>
-
-    }
-
-
 }
 

@@ -1,4 +1,4 @@
-﻿@inject SignInManager<IdentityUser> signInManager;
+﻿@inject SignInManager<AppUser> signInManager;
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,9 +26,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
-                        </li>
+                        @if (signInManager.IsSignedIn(User) && (User.IsInRole("SuperAdmin") || User.IsInRole("RecursosHumanos")))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Listar usuarios</a>
+                                </div>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav ml-auto">
                         @if (signInManager.IsSignedIn(User))
