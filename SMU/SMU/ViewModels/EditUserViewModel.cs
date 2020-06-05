@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -10,23 +9,10 @@ using System.Threading.Tasks;
 namespace SMU.ViewModels
 {
     [NotMapped]
-    public class RegisterViewModel
+    public class EditUserViewModel
     {
-  
-        [Required(ErrorMessage = "Este campo es obligatorio")]
-        [EmailAddress(ErrorMessage = "El formato no es válido")]
-        [Remote(action: "IsEmailInUse", controller: "Account", ErrorMessage = "Este email ya está en uso")]
-        public string Email { get; set; }
 
-        [Required(ErrorMessage = "Este campo es obligatorio")]
-        [DataType(DataType.Password)]
-        [DisplayName("Contraseña")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
-        [DisplayName("Confirmar contraseña")]
-        public string ConfirmPassword { get; set; }
+        public string Id { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [ForeignKey("AppUser")]
@@ -39,17 +25,28 @@ namespace SMU.ViewModels
         public int Document { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
-        [Display(Name = "Nombre")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
-        [Display(Name = "Apellido")]
         public string Lastname { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
+
+        [Display(Name = "Rol")]
+        public string SelectedRole { get; set; }
+
+        public string Role { get; set; }
+
+        public IEnumerable<SelectListItem> RolesList { get; set; }
+
+
     }
 }

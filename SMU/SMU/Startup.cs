@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -44,13 +45,20 @@ namespace SMU
                     )
                 );
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = new PathString("/Account/AccessDenied");
+            });
+
             services.AddIdentity<AppUser, IdentityRole>(option =>
             {
                 option.Password.RequiredLength = 8;
                 option.Password.RequiredUniqueChars = 0;
                 option.Password.RequireNonAlphanumeric = false;
+                //option.SignIn.RequireConfirmedEmail = true;
             }
-            ).AddEntityFrameworkStores<AppDbContext>();
+            ).AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,7 +70,7 @@ namespace SMU
             }
             else
             {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
             app.UseHttpsRedirection();

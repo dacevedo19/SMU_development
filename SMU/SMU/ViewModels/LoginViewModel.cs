@@ -12,7 +12,7 @@ namespace SMU.ViewModels
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "El formato no es válido")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]

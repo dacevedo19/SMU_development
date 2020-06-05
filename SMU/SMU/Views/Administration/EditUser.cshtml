@@ -1,0 +1,69 @@
+﻿@model EditUserViewModel
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<h1>Editar usuario</h1>
+<hr />
+
+<form method="post" class="mt-3">
+    <div class="form-group row">
+        <label asp-for="Document" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Document" class="form-control" />
+            <span asp-validation-for="Document" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Email" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="IdSupervisor" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="IdSupervisor" class="form-control" />
+            <span asp-validation-for="IdSupervisor" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Lastname" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Lastname" class="form-control" />
+            <span asp-validation-for="Lastname" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="EntryDate" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="EntryDate" type="date" class="form-control" />
+            <span asp-validation-for="EntryDate" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="SelectedRole" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            @Html.DropDownListFor(x=> x.SelectedRole, Model.RolesList, Model.Role)
+            <span asp-validation-for="SelectedRole" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm.10">
+            <button type="submit" class="btn btn-primary"> Actualizar </button>
+            <a class="btn btn-danger" style="width:auto"
+               asp-controller="Administration" asp-action="ListUsers"> Cancelar </a>
+        </div>
+    </div>
+
+
+</form>

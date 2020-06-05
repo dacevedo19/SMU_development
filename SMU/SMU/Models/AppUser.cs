@@ -11,7 +11,7 @@ namespace SMU.Models
     public class AppUser : IdentityUser
     {
 
-        #region Atributos
+        #region Atributos             
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [ForeignKey("AppUser")]

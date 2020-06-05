@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SMU.Models;
 using SMU.ViewModels;
@@ -52,8 +55,6 @@ namespace SMU.Controllers
             }
             return View();
         }
-
-
 
         [HttpGet]
         public IActionResult ListRoles()
@@ -108,6 +109,40 @@ namespace SMU.Controllers
             }
         }
 
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await roleManager.FindByIdAsync(id);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"El rol con ID = {id} no fue encontrado";
+                return View("NotFound");
+            }
+            else
+            {
+                try
+                {
+                    var result = await roleManager.DeleteAsync(role);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ListRoles");
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View("ListRoles");
+                } 
+                catch(DbUpdateException dbEx)
+                {
+                    ViewBag.ErrorTitle = $"El rol {role.Name} está en uso.";
+                    ViewBag.ErrorMessage = $"El rol {role.Name} tiene usuarios asignados. " +
+                        $"Debe quitarlos de este rol para poder borrar el rol.";
+                    return View("Error");
+                }
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> EditUserInRole(string roleId)
         {
@@ -151,7 +186,7 @@ namespace SMU.Controllers
             {
                 var user = await userManager.FindByIdAsync(model[i].UserId);
 
-                IdentityResult result = null;
+                IdentityResult result;
 
                 if (model[i].IsSelected && !(await userManager.IsInRoleAsync(user, role.Name)))
                 {
@@ -183,15 +218,103 @@ namespace SMU.Controllers
         {
             var users = userManager.Users;
             return View(users);
-        }    
-        
+        }
 
         [HttpGet]
-        [AllowAnonymous]
-        public IActionResult AccessDenied()
+        public async Task<IActionResult> EditUser(string id)
         {
+            List<IdentityRole> allRoles = new List<IdentityRole>();
+            allRoles = roleManager.Roles.ToList();
 
-            return View();
+            var user = await userManager.FindByIdAsync(id);
+            if(user == null)
+            {
+                ViewBag.ErrorMessage = $"El usuario con ID = {user.Id} no fue encontrado";
+                return View("NotFound");
+            }
+
+            var userRoles = await userManager.GetRolesAsync(user);
+            var userRole = userRoles.FirstOrDefault();
+
+            var model = new EditUserViewModel {
+                Id = user.Id,
+                IdSupervisor = user.IdSupervisor,
+                Document = user.Document,
+                Email = user.Email,
+                Name = user.Name, Lastname = user.Lastname,
+                EntryDate = user.EntryDate,
+                Role = userRole   
+            };
+            model.RolesList = allRoles.Select(s => new SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Name
+            });            
+            return View(model);
+        }       
+
+        [HttpPost]
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
+        {
+            var selectedRole = await roleManager.FindByIdAsync(model.SelectedRole);
+            var user = await userManager.FindByIdAsync(model.Id);            
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"El usuario con ID = {model.Id} no fue encontrado";
+                return View("NotFound");
+            } 
+            else
+            {                
+                user.IdSupervisor = model.IdSupervisor;
+                user.Document = model.Document;
+                user.Name = model.Name;
+                user.Lastname = model.Lastname;
+                user.EntryDate = model.EntryDate;
+
+                //Actualizar el rol
+                var userRoles = await userManager.GetRolesAsync(user);
+                var previousRole = userRoles.FirstOrDefault();                
+                await userManager.RemoveFromRoleAsync(user, previousRole);
+                await userManager.AddToRoleAsync(user, selectedRole.Name);
+
+                var result = await userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ListUsers");
+                } 
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+            }         
+            return View(model);
         }
+        
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+
+            if(user == null)
+            {
+                ViewBag.ErrorMessage = $"El usuario con ID = {id} no fue encontrado";
+                return View("NotFound");
+            }
+            else
+            {
+                var result = await userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ListUsers");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                return View("ListUsers");
+            }
+        }
+
+
     }
 }
