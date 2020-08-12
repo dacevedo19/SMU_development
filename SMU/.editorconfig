@@ -1,0 +1,7 @@
+﻿[*.{cs,vb}]
+
+# IDE0037: Usar nombre de miembro inferido
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:none
+
+# IDE0037: Usar nombre de miembro inferido
+dotnet_style_prefer_inferred_tuple_names = true:none

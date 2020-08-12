@@ -31,6 +31,7 @@ namespace SMU.Models
             }
         }
 
-        public DbSet<SMU.ViewModels.RegisterViewModel> RegisterViewModel { get; set; }
+        //public DbSet<SMU.ViewModels.RegisterViewModel> RegisterViewModel { get; set; }
+        public DbSet<SMU.Models.Request> Requests { get; set; }
     }
 }

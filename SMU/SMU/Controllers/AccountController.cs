@@ -26,12 +26,14 @@ namespace SMU.Controllers
 
         public UserManager<AppUser> UserManager { get; }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -74,12 +76,14 @@ namespace SMU.Controllers
             return View(model);
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -122,6 +126,7 @@ namespace SMU.Controllers
             await signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -166,6 +171,7 @@ namespace SMU.Controllers
             }
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPassword()
@@ -191,10 +197,8 @@ namespace SMU.Controllers
                                        
                     logger.Log(LogLevel.Warning, passwordResetLink);                   
                 }
-
                 return View("ForgotPasswordConfirmation");
             }
-
             return View(model);
         }
 
@@ -209,6 +213,7 @@ namespace SMU.Controllers
             }
             return View();
         }
+
 
         [HttpPost]
         [AllowAnonymous]

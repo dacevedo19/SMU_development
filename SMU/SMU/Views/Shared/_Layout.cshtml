@@ -38,6 +38,7 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
                         @if (signInManager.IsSignedIn(User) && (User.IsInRole("SuperAdmin") || User.IsInRole("RecursosHumanos")))
                         {
                             <li class="nav-item dropdown">
@@ -48,6 +49,9 @@
                                     <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Listar usuarios</a>
                                 </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Request" asp-action="RegisterRequest">Solicitar licencia</a>
                             </li>
                         }
                     </ul>

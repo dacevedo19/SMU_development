@@ -37,7 +37,7 @@ namespace SMU
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddXmlSerializerFormatters();
 
-            services.AddScoped<IUserRepositary, UserRepositary>();
+            services.AddScoped<IRequestManager, RequestManager>();
 
             services.AddDbContext<AppDbContext>(
                 options => options.UseNpgsql(

@@ -10,10 +10,10 @@ namespace SMU.Models
         #region Atributos
 
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public DateTime RequestDate { get; set; }
-        public enum Status { };
-        public enum RequestType { };
+        public Status Status { get; set; }
+        public RequestType Type { get; set; }
         public DateTime BeginDate { get; set; }
         public DateTime EndDate { get; set; }
         public Byte[] Attachment { get; set; }

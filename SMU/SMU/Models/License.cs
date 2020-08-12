@@ -11,11 +11,11 @@ namespace SMU.Models
 
         public int Id { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         public Request RequestMade { get; set; }
 
-        public enum RequestType { };
+        public RequestType Type { get; set; }
 
         public DateTime RequestDate { get; set; }
 

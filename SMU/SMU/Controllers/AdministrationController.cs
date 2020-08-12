@@ -133,7 +133,7 @@ namespace SMU.Controllers
                     }
                     return View("ListRoles");
                 } 
-                catch(DbUpdateException dbEx)
+                catch (DbUpdateException)
                 {
                     ViewBag.ErrorTitle = $"El rol {role.Name} está en uso.";
                     ViewBag.ErrorMessage = $"El rol {role.Name} tiene usuarios asignados. " +
@@ -274,9 +274,10 @@ namespace SMU.Controllers
 
                 //Actualizar el rol
                 var userRoles = await userManager.GetRolesAsync(user);
-                var previousRole = userRoles.FirstOrDefault();                
-                await userManager.RemoveFromRoleAsync(user, previousRole);
+                var previousRole = userRoles.FirstOrDefault();
+                if(previousRole != null) { await userManager.RemoveFromRoleAsync(user, previousRole); }
                 await userManager.AddToRoleAsync(user, selectedRole.Name);
+
 
                 var result = await userManager.UpdateAsync(user);
                 if (result.Succeeded)
