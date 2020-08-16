@@ -12,6 +12,7 @@ namespace SMU.Models
         public bool Delete(int requestId);
         public Request Find(int requestId);
         public List<Request> GetRequests();
+        public List<Request> GetRequestsByUserId(string id);
 
     }
 }

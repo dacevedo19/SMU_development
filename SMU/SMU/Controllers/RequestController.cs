@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,26 +23,24 @@ namespace SMU.Controllers
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
         private readonly IRequestManager requestManager;
+        private readonly IWebHostEnvironment hostingEnvironment;
 
-        public RequestController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IRequestManager requestManager)
+        public RequestController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, 
+            IRequestManager requestManager, IWebHostEnvironment hostingEnvironment)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
             this.requestManager = requestManager;
+            this.hostingEnvironment = hostingEnvironment;            
         }
 
 
         [HttpGet]
         public IActionResult RegisterRequest()
         {
-            var model = new RegisterRequestViewModel();
-            var types = GetRequestTypes();
-            model.TypesList = types.Select(t => new SelectListItem
-            {
-                Value = t.ToString(),
-                Text = t.ToString()
-            });
-
+            var model = new RegisterRequestViewModel();            
+            ViewBag.Today = DateTime.Today;
+            model.ListOfTypes = GetRequestTypes();
             return View(model);
         }
 
@@ -49,42 +52,54 @@ namespace SMU.Controllers
             
             
             if(model != null)
-            {                
-                request.UserId = userId;
-                request.RequestDate = DateTime.Today;
-                request.BeginDate = model.BeginDate;
-                request.EndDate = model.EndDate;
-                request.Attachment = model.Attachment;
-                request.Status = Status.Issued;
-                switch (model.SelectedRequestType)
+            {
+                if (request.BeginDate > request.EndDate)
                 {
-                    case "Vacacional":
-                        request.Type = RequestType.Vacacional;
-                        break;
-                    case "Médica":
-                        request.Type = RequestType.Médica;
-                        break;
-                    case "Estudio":
-                        request.Type = RequestType.Estudio;
-                        break;
-                    case null:
-                        break;
+                    ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
                 }
+                else {
+                    string uniqueFileName = null;
+                    if (model.Attachment != null)
+                    {
+                        string uploadsFolder = Path.Combine(hostingEnvironment.WebRootPath, "images");
+                        uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Attachment.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        model.Attachment.CopyTo(new FileStream(filePath, FileMode.Create));
+                    }
+                    request.UserId = userId;
+                    request.RequestDate = DateTime.Now;
+                    request.BeginDate = model.BeginDate;
+                    request.EndDate = model.EndDate;
+                    request.AttachmentPath = uniqueFileName;
+                    request.Status = Status.Issued;
+                    request.Type = (RequestType)model.SelectedRequestType;               
 
-                if (requestManager.Create(request))
-                {
-                    return RedirectToAction("Index", "Home");
-                } else
-                {
-                    ModelState.AddModelError("","Ocurrió un error. Intente nuevamente revisando los datos ingresados");
+                    if (requestManager.Create(request))
+                        {
+                            return RedirectToAction("Index", "Home");
+                        } else
+                        {
+                            ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
+                        }
                 }
             }
 
             return View(model);
         }
-
-
         
+        [HttpGet]
+        public IActionResult MyRequests()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
+            return View(userRequests);
+        }
+
+
+
+
+
+
         [HttpPost]
         [HttpGet]
         [AllowAnonymous]
@@ -101,11 +116,46 @@ namespace SMU.Controllers
             }
         }
 
-        private IEnumerable<RequestType> GetRequestTypes()
+        private SelectList GetRequestTypes()
         {
-            return Enum.GetValues(typeof(RequestType)).Cast<RequestType>();
+            //return Enum.GetValues(typeof(RequestType)).Cast<RequestType>();
+            var types = from RequestType s in Enum.GetValues(typeof(RequestType))
+                           select new { ID = (int)s, Name = s.ToString() };
+            return new SelectList(types, "ID", "Name");
         }
 
+        private List<SelectListItem> ToListSelectListItem<T>()
+        {
+            var t = typeof(T);
 
+            if (!t.IsEnum) { throw new ApplicationException("Tipo debe ser enum"); }
+
+            var members = t.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+            var result = new List<SelectListItem>();
+
+            foreach (var member in members)
+            {
+                var attributeDescription = member.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute),
+                    false);
+                var description = member.Name;
+
+                if (attributeDescription.Any())
+                {
+                    description = ((System.ComponentModel.DescriptionAttribute)attributeDescription[0]).Description;
+                }
+
+                var value = ((int)Enum.Parse(t, member.Name));
+                result.Add(new SelectListItem()
+                {
+                    Text = description,
+                    Value = value.ToString()
+                });
+            }
+            return result;
+        }
+    
+
+    
     }
 }

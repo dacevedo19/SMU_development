@@ -35,12 +35,13 @@
                 </button>
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
 
                         @if (signInManager.IsSignedIn(User) && (User.IsInRole("SuperAdmin") || User.IsInRole("RecursosHumanos")))
                         {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
@@ -50,9 +51,18 @@
                                     <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Listar usuarios</a>
                                 </div>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Request" asp-action="RegisterRequest">Solicitar licencia</a>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Solicitudes</a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="RegisterRequest">Pedir solicitud</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="MyRequests">Mis solicitudes</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Gestionar solicitudes</a>
+                                </div>
                             </li>
+
                         }
                     </ul>
                     <ul class="navbar-nav ml-auto">
@@ -62,7 +72,7 @@
                                 <p>Hola @User.Identity.Name |</p>
                             </li>
                             <li class="nav-item">
-                                
+
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-controller="Account" asp-action="Logout">
@@ -84,21 +94,30 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+
 
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2020 - Sociedad Médica Universal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+
+
+        </main>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
+
+    @if (IsSectionDefined("Scripts"))
+    {
+        @RenderSection("Scripts", required: true)
+    }
+
+
 </body>
 </html>
 

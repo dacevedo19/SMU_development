@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Request>
+@{
+    ViewData["Title"] = "MyRequests";
+}
+
+<h1>Mis solicitudes</h1>
+
+<a class="btn btn-primary" style="width:auto"
+   asp-controller="Request" asp-action="RegisterRequest"> Nueva solicitud </a>
+<hr />
+
+@if (Model.Any())
+{
+
+    @foreach (var request in Model)
+    {
+        <div class="card">
+            <div class="card-header" style="background-color:gray">
+                <h4>ID: @request.Id</h4>
+            </div>
+            <div class="card-body" style="background-color:lightgray">
+                <div class="row">
+                    <div class="col-sm">
+                        Tipo: @request.Type
+                    </div>
+                    <div class="col-sm">
+                        Desde: @request.BeginDate
+                    </div>
+                    <div class="col-sm">
+                        Hasta: @request.EndDate
+                    </div>
+                    <div class="col-sm">
+                        Estado: @request.Status
+                    </div>
+                    <div class="col-sm">
+                        <form asp-controller="Request" asp-action="DeleteRequest" asp-route-id="@request.Id" method="post">
+                            <button type="submit" class="btn btn-danger" style="width:auto"
+                                    onclick="return confirm('¿Está seguro de que quiere eliminar la solicitud?')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            No hay solicitudes a su nombre
+        </div>
+        <div class="card-body">
+
+        </div>
+    </div>
+}
+

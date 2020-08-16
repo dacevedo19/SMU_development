@@ -55,11 +55,21 @@ namespace SMU.Models
         }
 
         public List<Request> GetRequests()
-        {
+        {          
             return context.Requests.ToList();
         }
 
-       
+        public List<Request> GetRequestsByUserId(string id)
+        {
+            List<Request> requests = GetRequests();
+            List<Request> userRequests = new List<Request>();
 
+            foreach(Request r in requests)
+            {
+                if (r.UserId == id) { userRequests.Add(r); }
+            }
+
+            return userRequests;
+        }
     }
 }

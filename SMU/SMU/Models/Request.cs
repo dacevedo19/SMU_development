@@ -16,7 +16,7 @@ namespace SMU.Models
         public RequestType Type { get; set; }
         public DateTime BeginDate { get; set; }
         public DateTime EndDate { get; set; }
-        public Byte[] Attachment { get; set; }
+        public string AttachmentPath { get; set; }
 
         #endregion
 

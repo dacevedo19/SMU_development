@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SMU.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,10 +17,10 @@ namespace SMU.ViewModels
     {          
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [DisplayName("Tipo de licencia")]
-        public string SelectedRequestType { get; set; }
+        public int SelectedRequestType { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        public string RequestType { get; set; }
+        public RequestType Type { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [DisplayName("Desde")]
@@ -30,10 +32,9 @@ namespace SMU.ViewModels
         public DateTime EndDate { get; set; }
 
         [DisplayName("Adjuntar archivo")]
-        public Byte[] Attachment { get; set; }
+        public IFormFile Attachment { get; set; }
 
-        public DateTime today = DateTime.Today;
+        public SelectList ListOfTypes { get; set; }
 
-        public IEnumerable<SelectListItem> TypesList { get; set; }
     }
 }

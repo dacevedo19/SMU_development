@@ -51,5 +51,17 @@ namespace SMU.ViewModels
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
+
+        public enum RequestType
+        {
+            Vacacional = 1,
+            Médica = 2,
+            Estudio = 3
+            /*TarjetaMacro,
+            ChangeBankAccount,
+            SalaryClaim*/
+        }
+
+
     }
 }

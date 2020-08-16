@@ -7,9 +7,9 @@ namespace SMU.Models
 {
     public enum RequestType
     {
-        Vacacional,
-        Médica,
-        Estudio
+        Vacacional = 1,
+        Médica = 2,
+        Estudio = 3
         /*TarjetaMacro,
         ChangeBankAccount,
         SalaryClaim*/

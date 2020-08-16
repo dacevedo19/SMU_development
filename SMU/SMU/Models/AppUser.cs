@@ -35,9 +35,7 @@ namespace SMU.Models
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
 
-        public List<Request> RequestList { get; set; }
-
-        public List<License> LicenseList { get; set; }
+        public List<Request> RequestList { get; set; }    
 
 
         #endregion
