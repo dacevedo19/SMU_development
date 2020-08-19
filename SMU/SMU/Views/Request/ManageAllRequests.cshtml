@@ -1,12 +1,9 @@
-﻿@model IEnumerable<Request>
+﻿@model IEnumerable<ManageSubordinatesRequestsViewModel>
 @{
-    ViewData["Title"] = "Mis solicitudes";
+    ViewData["Title"] = "Solicitudes de empleados";
 }
 
-<h1>Mis solicitudes</h1>
-
-<a class="btn btn-primary" style="width:auto"
-   asp-controller="Request" asp-action="RegisterRequest"> Nueva solicitud </a>
+<h1>Solicitudes de empleados</h1>
 <hr />
 
 @if (Model.Any())
@@ -16,6 +13,9 @@
             <tr>
                 <th>
                     @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserRequesting)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Type)
@@ -43,6 +43,9 @@
                         @item.Id
                     </td>
                     <td>
+                        @item.UserRequesting
+                    </td>
+                    <td>
                         @item.Type
                     </td>
                     <td>
@@ -59,16 +62,10 @@
                     </td>
                     @if (item.Status == Status.Procesada)
                     {
-                        <td>
-                            <div class="col-sm">
-                                <form asp-controller="Request" asp-action="DeleteRequest" asp-route-id="@item.Id">
-                                    <button type="submit" class="btn btn-danger" style="width:auto"
-                                            onclick="return confirm('¿Está seguro de que quiere cancelar la solicitud?')">
-                                        Cancelar
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
+                    <td>
+                        <a asp-action="AcceptRequest" asp-route-id="@item.Id">Aceptar</a> |
+                        <a asp-action="RejectRequest" asp-route-id="@item.Id">Rechazar</a>
+                    </td>
                     }
                 </tr>
             }
@@ -77,7 +74,7 @@
 }
 else
 {
-    <h4>No hay solicitudes a su nombre</h4>   
+    <h4>No existen solicitudes de empleados.</h4>
 }
 
 <div>

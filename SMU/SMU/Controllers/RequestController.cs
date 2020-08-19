@@ -44,6 +44,7 @@ namespace SMU.Controllers
             return View(model);
         }
 
+       
         [HttpPost]
         public IActionResult RegisterRequest(RegisterRequestViewModel model)
         {
@@ -53,9 +54,10 @@ namespace SMU.Controllers
             
             if(model != null)
             {
-                if (request.BeginDate > request.EndDate)
+                if (model.BeginDate > model.EndDate)
                 {
-                    ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
+                    ModelState.AddModelError("", "La fecha de fin debe ser mayor a la fecha de inicio.");                    
+                    model.ListOfTypes = GetRequestTypes();
                 }
                 else {
                     string uniqueFileName = null;
@@ -76,7 +78,7 @@ namespace SMU.Controllers
 
                     if (requestManager.Create(request))
                         {
-                            return RedirectToAction("Index", "Home");
+                            return RedirectToAction("MyRequests");
                         } else
                         {
                             ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
@@ -87,6 +89,7 @@ namespace SMU.Controllers
             return View(model);
         }
         
+        
         [HttpGet]
         public IActionResult MyRequests()
         {
@@ -95,7 +98,7 @@ namespace SMU.Controllers
             return View(userRequests);
         }
 
-        [HttpPost]
+        
         public IActionResult DeleteRequest(int id)
         {
             Request request = requestManager.Find(id);
@@ -120,31 +123,24 @@ namespace SMU.Controllers
             }
         }
 
+        
         [HttpGet]
-        public async Task<IActionResult> ManageSubordinatesRequestsAsync()
+        public async Task<IActionResult> ManageSubordinatesRequests()
         {
-            List<Request> subordinatesRequests = new List<Request>();
-            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
-
             string loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             AppUser loggedUser = await userManager.FindByIdAsync(loggedUserId);
-            var users = userManager.Users;
+            int loggedUserDocument = loggedUser.Document;
+            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
 
-            foreach (AppUser u in users)
-            {
-                if (u.Supervisor == loggedUser.Document)
-                {
-                    List<Request> listAux = requestManager.GetRequestsByUserId(u.Id);
-                    subordinatesRequests.AddRange(listAux);
-                }
-            }
+            List<Request> subordinatesRequests = GetSubordinateRequests(loggedUserDocument);           
 
             foreach(Request r in subordinatesRequests)
             {
+                AppUser requestUser = await userManager.FindByIdAsync(r.UserId);
                 ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
                 {
                     Id = r.Id,
-                    UserRequesting = r.UserId,
+                    UserRequesting = requestUser.Name + " " + requestUser.Lastname,
                     Type = r.Type,
                     BeginDate = r.BeginDate,
                     EndDate = r.EndDate,
@@ -154,21 +150,59 @@ namespace SMU.Controllers
                 model.Add(m);
             }
 
-            return View(subordinatesRequests);
+            return View(model);
+        }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> ManageAllRequestsAsync()
+        {
+            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
+            List<Request> requests = requestManager.GetRequests();
+
+            foreach (Request r in requests)
+            {               
+                AppUser loggedUser = await userManager.FindByIdAsync(r.UserId);
+                ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
+                {
+                    Id = r.Id,
+                    UserRequesting = loggedUser.Name + " " +loggedUser.Lastname,
+                    Type = r.Type,
+                    BeginDate = r.BeginDate,
+                    EndDate = r.EndDate,
+                    RequestDate = r.RequestDate,
+                    Status = r.Status
+                };
+                model.Add(m);
+            }
+
+            return View(model);
+        }
+
+
+        public IActionResult AcceptSubordinateRequest(int id)
+        {
+            requestManager.Accept(id);
+            return RedirectToAction("ManageSubordinatesRequests");
+        }
+
+        public IActionResult RejectSubordinateRequest(int id)
+        {
+            requestManager.Reject(id);
+            return RedirectToAction("ManageSubordinatesRequests");
         }
 
         public IActionResult AcceptRequest(int id)
         {
             requestManager.Accept(id);
-            return RedirectToAction("ManageSubordinatesRequestsAsync");
+            return RedirectToAction("ManageAllRequests");
         }
 
         public IActionResult RejectRequest(int id)
         {
             requestManager.Reject(id);
-            return RedirectToAction("ManageSubordinatesRequestsAsync");
+            return RedirectToAction("ManageAllRequests");
         }
-
 
         #region Extra methods
 
@@ -227,7 +261,22 @@ namespace SMU.Controllers
             }
             return result;
         }
-    
+
+        private List<Request> GetSubordinateRequests(int document)
+        {
+            List<Request> subordinatesRequests = new List<Request>();
+            var users = userManager.Users.ToList();           
+
+            foreach (AppUser u in users)
+            {
+                if (u.Supervisor == document)
+                {
+                    List<Request> listAux = requestManager.GetRequestsByUserId(u.Id);
+                    subordinatesRequests.AddRange(listAux);
+                }
+            }
+            return subordinatesRequests;
+        }
 
 
         #endregion

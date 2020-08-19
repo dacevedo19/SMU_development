@@ -61,7 +61,7 @@ namespace SMU.Models
 
         public List<Request> GetRequestsByUserId(string id)
         {
-            List<Request> requests = GetRequests();
+            List<Request> requests = context.Requests.ToList();
             List<Request> userRequests = new List<Request>();
 
             foreach(Request r in requests)

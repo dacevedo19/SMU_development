@@ -33,6 +33,7 @@ namespace SMU.Controllers
             return View();
         }
 
+        
         [HttpPost]
         public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
         {
@@ -56,6 +57,7 @@ namespace SMU.Controllers
             return View();
         }
 
+        
         [HttpGet]
         public IActionResult ListRoles()
         {
@@ -63,6 +65,7 @@ namespace SMU.Controllers
             return View(roles);
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> EditRole(string id)
         {
@@ -84,6 +87,7 @@ namespace SMU.Controllers
             return View(model);
         }
 
+        
         [HttpPost]
         public async Task<IActionResult> EditRole(EditRoleViewModel model)
         {
@@ -109,6 +113,7 @@ namespace SMU.Controllers
             }
         }
 
+        
         public async Task<IActionResult> DeleteRole(string id)
         {
             var role = await roleManager.FindByIdAsync(id);
@@ -143,6 +148,7 @@ namespace SMU.Controllers
             }
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> EditUserInRole(string roleId)
         {
@@ -173,6 +179,7 @@ namespace SMU.Controllers
             return View(model);
         }
 
+        
         [HttpPost]
         public async Task<IActionResult> EditUserInRole(List<UserRoleViewModel> model, string roleId)
         {
@@ -213,6 +220,7 @@ namespace SMU.Controllers
             return RedirectToAction("EditRole", new { Id = roleId });
         }
 
+        
         [HttpGet]
         public IActionResult ListUsers()
         {
@@ -220,6 +228,7 @@ namespace SMU.Controllers
             return View(users);
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> EditUser(string id)
         {
@@ -253,6 +262,7 @@ namespace SMU.Controllers
             return View(model);
         }       
 
+        
         [HttpPost]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
@@ -291,6 +301,7 @@ namespace SMU.Controllers
             }         
             return View(model);
         }
+        
         
         public async Task<IActionResult> DeleteUser(string id)
         {

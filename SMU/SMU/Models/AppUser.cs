@@ -34,15 +34,13 @@ namespace SMU.Models
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
-
-        public List<Request> RequestList { get; set; }    
-
+                  
 
         #endregion
 
         #region Constructores
 
-        //public AppUser() {}
+        public AppUser() {}
 
         #endregion
     }

@@ -36,20 +36,10 @@
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav">
 
-                        @if (signInManager.IsSignedIn(User) && (User.IsInRole("SuperAdmin") || User.IsInRole("RecursosHumanos")))
+                        @if (signInManager.IsSignedIn(User))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
-
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Listar usuarios</a>
-                                </div>
                             </li>
 
                             <li class="nav-item dropdown">
@@ -59,9 +49,29 @@
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                     <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="RegisterRequest">Pedir solicitud</a>
                                     <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="MyRequests">Mis solicitudes</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="ManageSubordinatesRequestsAsync">Gestionar solicitudes</a>
+                                    @if (User.IsInRole("Supervisor"))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="ManageSubordinatesRequests">Gestionar solicitudes</a>
+                                    }
+                                    @if (User.IsInRole("RecursosHumanos") || User.IsInRole("SuperAdmin"))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Request" asp-action="ManageAllRequests">Gestionar todas las solicitudes</a>
+                                    }
                                 </div>
                             </li>
+
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Administrar</a>
+
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListRoles">Listar roles</a>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Administration" asp-action="ListUsers">Listar usuarios</a>
+                                    </div>
+                                </li>
+                            }
 
                         }
                     </ul>
@@ -98,9 +108,11 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2020 - Sociedad Médica Universal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2020 - Sociedad Médica Universal - DERIVATOR
         </div>
     </footer>
+    
+    
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

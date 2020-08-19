@@ -6,66 +6,76 @@
 <h1>Solicitudes de empleados a cargo</h1>
 <hr />
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserRequesting)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BeginDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RequestDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-        <tr>
-            <td>
-                @Html.DisplayNameFor(model => model.Id)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.UserRequesting)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.Type)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.BeginDate)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.RequestDate)
-            </td>
-            <td>
-                @Html.DisplayNameFor(model => model.Status)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Aceptar</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Rechazar</a>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+@if (Model.Any()) { 
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserRequesting)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Type)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.BeginDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RequestDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.UserRequesting
+                </td>
+                <td>
+                    @item.Type
+                </td>
+                <td>
+                    @item.BeginDate.ToShortDateString()
+                </td>
+                <td>
+                    @item.EndDate.ToShortDateString()
+                </td>
+                <td>
+                    @item.RequestDate
+                </td>
+                <td>
+                    @item.Status
+                </td>
+                @if (item.Status == Status.Procesada)
+                {
+                    <td>
+                        <a asp-action="AcceptSubordinateRequest" asp-route-id="@item.Id">Aceptar</a> |
+                        <a asp-action="RejectSubordinateRequest" asp-route-id="@item.Id">Rechazar</a>
+                    </td>
+                }
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h4>No existen solicitudes de empleados a su cargo.</h4>
+}
 
 <div>
     <a asp-controller="Home" asp-action="Index">Atrás</a>
