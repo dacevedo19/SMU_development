@@ -43,7 +43,7 @@ namespace SMU.Controllers
             {
                 var user = new AppUser { 
                     UserName = model.Email, Email = model.Email, Document = model.Document, Name = model.Name,
-                    Lastname = model.Lastname, IdSupervisor = model.IdSupervisor, EntryDate = model.EntryDate 
+                    Lastname = model.Lastname, Supervisor = model.Supervisor, EntryDate = model.EntryDate 
                 };
                 var result = await userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)

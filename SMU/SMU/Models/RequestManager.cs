@@ -71,5 +71,27 @@ namespace SMU.Models
 
             return userRequests;
         }
+
+        public bool Accept(int requestId)
+        {
+            Request r = Find(requestId);
+            if(r != null)
+            {
+                r.Status = Status.Aceptada;
+                return Update(r);
+            } 
+            else { return false; }
+        }
+
+        public bool Reject(int requestId)
+        {
+            Request r = Find(requestId);
+            if (r != null)
+            {
+                r.Status = Status.Rechazada;
+                return Update(r);
+            }
+            else { return false; }
+        }
     }
 }

@@ -14,9 +14,9 @@ namespace SMU.Models
         #region Atributos             
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [ForeignKey("AppUser")]
-        [Display(Name = "ID Supervisor")]
-        public int IdSupervisor { get; set; }
+        
+        [Display(Name = "Cedula del supervisor")]
+        public int Supervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]

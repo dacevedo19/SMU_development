@@ -29,6 +29,9 @@ namespace SMU.Models
             {
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder.Entity<AppUser>().HasIndex(u => u.Document).IsUnique();
+            
         }
 
         //public DbSet<SMU.ViewModels.RegisterViewModel> RegisterViewModel { get; set; }

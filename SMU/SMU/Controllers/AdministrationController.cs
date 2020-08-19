@@ -238,7 +238,7 @@ namespace SMU.Controllers
 
             var model = new EditUserViewModel {
                 Id = user.Id,
-                IdSupervisor = user.IdSupervisor,
+                Supervisor = user.Supervisor,
                 Document = user.Document,
                 Email = user.Email,
                 Name = user.Name, Lastname = user.Lastname,
@@ -266,7 +266,7 @@ namespace SMU.Controllers
             } 
             else
             {                
-                user.IdSupervisor = model.IdSupervisor;
+                user.Supervisor = model.Supervisor;
                 user.Document = model.Document;
                 user.Name = model.Name;
                 user.Lastname = model.Lastname;

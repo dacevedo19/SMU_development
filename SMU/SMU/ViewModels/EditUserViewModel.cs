@@ -17,7 +17,7 @@ namespace SMU.ViewModels
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [ForeignKey("AppUser")]
         [Display(Name = "ID Supervisor")]
-        public int IdSupervisor { get; set; }
+        public int Supervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]

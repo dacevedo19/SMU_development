@@ -13,6 +13,8 @@ namespace SMU.Models
         public Request Find(int requestId);
         public List<Request> GetRequests();
         public List<Request> GetRequestsByUserId(string id);
+        public bool Accept(int requestId);
+        public bool Reject(int requestId);
 
     }
 }

@@ -8,11 +8,8 @@ namespace SMU.Models
 {
     public enum Status
     {
-        [Description("En proceso")]
-        Issued,
-        [Description("Aceptada")]
-        Accepted,
-        [Description("Rechazada")]
-        Declined
+        Procesada,        
+        Aceptada,        
+        Rechazada
     }
 }

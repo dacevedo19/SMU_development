@@ -71,7 +71,7 @@ namespace SMU.Controllers
                     request.BeginDate = model.BeginDate;
                     request.EndDate = model.EndDate;
                     request.AttachmentPath = uniqueFileName;
-                    request.Status = Status.Issued;
+                    request.Status = Status.Procesada;
                     request.Type = (RequestType)model.SelectedRequestType;               
 
                     if (requestManager.Create(request))
@@ -95,9 +95,82 @@ namespace SMU.Controllers
             return View(userRequests);
         }
 
+        [HttpPost]
+        public IActionResult DeleteRequest(int id)
+        {
+            Request request = requestManager.Find(id);
+
+            if (request == null)
+            {
+                ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                return View("NotFound");
+            }
+            else
+            {
+               
+                if (requestManager.Delete(id))
+                {
+                    return RedirectToAction("MyRequests");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Ocurrrió un error al procesar la solicitud. Intente nuevamente");
+                }
+                return View("MyRequests");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageSubordinatesRequestsAsync()
+        {
+            List<Request> subordinatesRequests = new List<Request>();
+            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
+
+            string loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            AppUser loggedUser = await userManager.FindByIdAsync(loggedUserId);
+            var users = userManager.Users;
+
+            foreach (AppUser u in users)
+            {
+                if (u.Supervisor == loggedUser.Document)
+                {
+                    List<Request> listAux = requestManager.GetRequestsByUserId(u.Id);
+                    subordinatesRequests.AddRange(listAux);
+                }
+            }
+
+            foreach(Request r in subordinatesRequests)
+            {
+                ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
+                {
+                    Id = r.Id,
+                    UserRequesting = r.UserId,
+                    Type = r.Type,
+                    BeginDate = r.BeginDate,
+                    EndDate = r.EndDate,
+                    RequestDate = r.RequestDate,
+                    Status = r.Status
+                };
+                model.Add(m);
+            }
+
+            return View(subordinatesRequests);
+        }
+
+        public IActionResult AcceptRequest(int id)
+        {
+            requestManager.Accept(id);
+            return RedirectToAction("ManageSubordinatesRequestsAsync");
+        }
+
+        public IActionResult RejectRequest(int id)
+        {
+            requestManager.Reject(id);
+            return RedirectToAction("ManageSubordinatesRequestsAsync");
+        }
 
 
-
+        #region Extra methods
 
 
         [HttpPost]
@@ -156,6 +229,8 @@ namespace SMU.Controllers
         }
     
 
-    
+
+        #endregion
+
     }
 }
