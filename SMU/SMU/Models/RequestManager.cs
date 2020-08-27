@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace SMU.Models
 {
     public class RequestManager : IRequestManager
     {
+
         private readonly AppDbContext context;
 
         public RequestManager(AppDbContext context)

@@ -19,6 +19,10 @@
     <Compile Remove="Migrations\20200812084009_Changes_To_Model_Request.Designer.cs" />
     <Compile Remove="Migrations\20200812084754_Changes_To_Model_Request.cs" />
     <Compile Remove="Migrations\20200812084754_Changes_To_Model_Request.Designer.cs" />
+    <Compile Remove="Migrations\20200824085810_Add_Seed_Data_For_Users.cs" />
+    <Compile Remove="Migrations\20200824085810_Add_Seed_Data_For_Users.Designer.cs" />
+    <Compile Remove="Migrations\20200827000403_Final_Migration_In_Demo.cs" />
+    <Compile Remove="Migrations\20200827000403_Final_Migration_In_Demo.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

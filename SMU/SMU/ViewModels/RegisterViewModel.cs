@@ -12,7 +12,9 @@ namespace SMU.ViewModels
     [NotMapped]
     public class RegisterViewModel
     {
-  
+
+        #region Atributos
+
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [EmailAddress(ErrorMessage = "El formato no es válido")]
         [Remote(action: "IsEmailInUse", controller: "Account", ErrorMessage = "Este email ya está en uso")]
@@ -30,8 +32,8 @@ namespace SMU.ViewModels
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [ForeignKey("AppUser")]
-        [Display(Name = "ID Supervisor")]
-        public int Supervisor { get; set; }
+        [Display(Name = "Nombre de su supervisor")]
+        public string Supervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]
@@ -51,6 +53,8 @@ namespace SMU.ViewModels
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
+
+        #endregion
 
     }
 }

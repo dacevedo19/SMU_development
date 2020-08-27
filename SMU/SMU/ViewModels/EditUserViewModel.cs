@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace SMU.ViewModels
 {
@@ -12,12 +11,13 @@ namespace SMU.ViewModels
     public class EditUserViewModel
     {
 
+        #region Atributos
         public string Id { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [ForeignKey("AppUser")]
-        [Display(Name = "ID Supervisor")]
-        public int Supervisor { get; set; }
+        [Display(Name = "Nombre de su supervisor")]
+        public string Supervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]
@@ -47,6 +47,8 @@ namespace SMU.ViewModels
 
         public IEnumerable<SelectListItem> RolesList { get; set; }
 
+
+        #endregion
 
     }
 }

@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace SMU.ViewModels
 {
     [NotMapped]
     public class LoginViewModel
     {
+
+        #region Atributos
+
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [EmailAddress(ErrorMessage = "El formato no es válido")]
         public string Email { get; set; }
@@ -22,5 +24,8 @@ namespace SMU.ViewModels
 
         [DisplayName("Recordarme")]
         public bool RememberMe { get; set; }
+
+        #endregion
+
     }
 }

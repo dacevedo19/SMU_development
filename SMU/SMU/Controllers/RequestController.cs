@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SMU.Models;
 using SMU.ViewModels;
+
 
 namespace SMU.Controllers
 {
@@ -35,31 +34,34 @@ namespace SMU.Controllers
         }
 
 
+        #region Metodos
+
         [HttpGet]
         public IActionResult RegisterRequest()
         {
-            var model = new RegisterRequestViewModel();            
+            var model = new RegisterRequestViewModel();
             ViewBag.Today = DateTime.Today;
             model.ListOfTypes = GetRequestTypes();
             return View(model);
         }
 
-       
+
         [HttpPost]
         public IActionResult RegisterRequest(RegisterRequestViewModel model)
         {
             Request request = new Request();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            
-            if(model != null)
+
+
+            if (model != null)
             {
                 if (model.BeginDate > model.EndDate)
                 {
-                    ModelState.AddModelError("", "La fecha de fin debe ser mayor a la fecha de inicio.");                    
+                    ModelState.AddModelError("", "La fecha de fin debe ser mayor a la fecha de inicio.");
                     model.ListOfTypes = GetRequestTypes();
                 }
-                else {
+                else
+                {
                     string uniqueFileName = null;
                     if (model.Attachment != null)
                     {
@@ -74,22 +76,23 @@ namespace SMU.Controllers
                     request.EndDate = model.EndDate;
                     request.AttachmentPath = uniqueFileName;
                     request.Status = Status.Procesada;
-                    request.Type = (RequestType)model.SelectedRequestType;               
+                    request.Type = (RequestType)model.SelectedRequestType;
 
                     if (requestManager.Create(request))
-                        {
-                            return RedirectToAction("MyRequests");
-                        } else
-                        {
-                            ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
-                        }
+                    {
+                        return RedirectToAction("MyRequests");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Ocurrió un error. Intente nuevamente revisando los datos ingresados");
+                    }
                 }
             }
 
             return View(model);
         }
-        
-        
+
+
         [HttpGet]
         public IActionResult MyRequests()
         {
@@ -98,7 +101,7 @@ namespace SMU.Controllers
             return View(userRequests);
         }
 
-        
+
         public IActionResult DeleteRequest(int id)
         {
             Request request = requestManager.Find(id);
@@ -110,7 +113,7 @@ namespace SMU.Controllers
             }
             else
             {
-               
+
                 if (requestManager.Delete(id))
                 {
                     return RedirectToAction("MyRequests");
@@ -123,7 +126,7 @@ namespace SMU.Controllers
             }
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> ManageSubordinatesRequests()
         {
@@ -132,9 +135,9 @@ namespace SMU.Controllers
             int loggedUserDocument = loggedUser.Document;
             List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
 
-            List<Request> subordinatesRequests = GetSubordinateRequests(loggedUserDocument);           
+            List<Request> subordinatesRequests = GetSubordinateRequests(loggedUserDocument);
 
-            foreach(Request r in subordinatesRequests)
+            foreach (Request r in subordinatesRequests)
             {
                 AppUser requestUser = await userManager.FindByIdAsync(r.UserId);
                 ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
@@ -153,7 +156,7 @@ namespace SMU.Controllers
             return View(model);
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> ManageAllRequestsAsync()
         {
@@ -161,12 +164,12 @@ namespace SMU.Controllers
             List<Request> requests = requestManager.GetRequests();
 
             foreach (Request r in requests)
-            {               
+            {
                 AppUser loggedUser = await userManager.FindByIdAsync(r.UserId);
                 ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
                 {
                     Id = r.Id,
-                    UserRequesting = loggedUser.Name + " " +loggedUser.Lastname,
+                    UserRequesting = loggedUser.Name + " " + loggedUser.Lastname,
                     Type = r.Type,
                     BeginDate = r.BeginDate,
                     EndDate = r.EndDate,
@@ -178,7 +181,6 @@ namespace SMU.Controllers
 
             return View(model);
         }
-
 
         public IActionResult AcceptSubordinateRequest(int id)
         {
@@ -204,7 +206,10 @@ namespace SMU.Controllers
             return RedirectToAction("ManageAllRequests");
         }
 
-        #region Extra methods
+        #endregion
+
+
+        #region Metodos auxiliares
 
 
         [HttpPost]

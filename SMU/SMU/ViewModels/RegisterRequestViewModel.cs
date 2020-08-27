@@ -3,18 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SMU.Models;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace SMU.ViewModels
 {
     [NotMapped]
     public class RegisterRequestViewModel
-    {          
+    {
+
+        #region Atributos
+
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [DisplayName("Tipo de licencia")]
         public int SelectedRequestType { get; set; }
@@ -26,15 +27,17 @@ namespace SMU.ViewModels
         [DisplayName("Desde")]
         [Remote(action: "IsDateInFuture", controller: "Request", ErrorMessage = "La fecha debe ser en el futuro")]
         public DateTime BeginDate { get; set; }
-        
+
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [DisplayName("Hasta")]        
+        [DisplayName("Hasta")]
         public DateTime EndDate { get; set; }
 
         [DisplayName("Adjuntar archivo")]
         public IFormFile Attachment { get; set; }
 
         public SelectList ListOfTypes { get; set; }
+
+        #endregion
 
     }
 }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SMU.Models;
 using SMU.ViewModels;
 
@@ -27,13 +24,16 @@ namespace SMU.Controllers
             this.userManager = userManager;
         }
 
+
+        #region Metodos
+
         [HttpGet]
         public IActionResult CreateRole()
         {
             return View();
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
         {
@@ -57,7 +57,7 @@ namespace SMU.Controllers
             return View();
         }
 
-        
+
         [HttpGet]
         public IActionResult ListRoles()
         {
@@ -65,7 +65,7 @@ namespace SMU.Controllers
             return View(roles);
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> EditRole(string id)
         {
@@ -83,11 +83,11 @@ namespace SMU.Controllers
                     model.Users.Add(user.UserName);
                 }
             }
-            
+
             return View(model);
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> EditRole(EditRoleViewModel model)
         {
@@ -113,7 +113,7 @@ namespace SMU.Controllers
             }
         }
 
-        
+
         public async Task<IActionResult> DeleteRole(string id)
         {
             var role = await roleManager.FindByIdAsync(id);
@@ -137,7 +137,7 @@ namespace SMU.Controllers
                         ModelState.AddModelError("", error.Description);
                     }
                     return View("ListRoles");
-                } 
+                }
                 catch (DbUpdateException)
                 {
                     ViewBag.ErrorTitle = $"El rol {role.Name} está en uso.";
@@ -148,7 +148,7 @@ namespace SMU.Controllers
             }
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> EditUserInRole(string roleId)
         {
@@ -179,17 +179,17 @@ namespace SMU.Controllers
             return View(model);
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> EditUserInRole(List<UserRoleViewModel> model, string roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId);
-            if(role == null)
+            if (role == null)
             {
                 ViewBag.ErrorMessage = $"El rol con ID = {role.Id} no fue encontrado";
                 return View("NotFound");
             }
-            for(int i = 0; i < model.Count; i++)
+            for (int i = 0; i < model.Count; i++)
             {
                 var user = await userManager.FindByIdAsync(model[i].UserId);
 
@@ -200,9 +200,9 @@ namespace SMU.Controllers
                     result = await userManager.AddToRoleAsync(user, role.Name);
                 }
                 else if (!model[i].IsSelected && await userManager.IsInRoleAsync(user, role.Name))
-                    {
+                {
                     result = await userManager.RemoveFromRoleAsync(user, role.Name);
-                    }
+                }
                 else
                 {
                     continue;
@@ -220,7 +220,7 @@ namespace SMU.Controllers
             return RedirectToAction("EditRole", new { Id = roleId });
         }
 
-        
+
         [HttpGet]
         public IActionResult ListUsers()
         {
@@ -228,7 +228,7 @@ namespace SMU.Controllers
             return View(users);
         }
 
-        
+
         [HttpGet]
         public async Task<IActionResult> EditUser(string id)
         {
@@ -236,7 +236,7 @@ namespace SMU.Controllers
             allRoles = roleManager.Roles.ToList();
 
             var user = await userManager.FindByIdAsync(id);
-            if(user == null)
+            if (user == null)
             {
                 ViewBag.ErrorMessage = $"El usuario con ID = {user.Id} no fue encontrado";
                 return View("NotFound");
@@ -245,69 +245,86 @@ namespace SMU.Controllers
             var userRoles = await userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault();
 
-            var model = new EditUserViewModel {
+            var model = new EditUserViewModel
+            {
                 Id = user.Id,
-                Supervisor = user.Supervisor,
+                Supervisor = GetSupervisorNameById(user.Supervisor),
                 Document = user.Document,
                 Email = user.Email,
-                Name = user.Name, Lastname = user.Lastname,
+                Name = user.Name,
+                Lastname = user.Lastname,
                 EntryDate = user.EntryDate,
-                Role = userRole   
+                Role = userRole
             };
             model.RolesList = allRoles.Select(s => new SelectListItem
             {
                 Value = s.Id.ToString(),
                 Text = s.Name
-            });            
+            });
             return View(model);
-        }       
+        }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
             var selectedRole = await roleManager.FindByIdAsync(model.SelectedRole);
-            var user = await userManager.FindByIdAsync(model.Id);            
+            var user = await userManager.FindByIdAsync(model.Id);
 
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"El usuario con ID = {model.Id} no fue encontrado";
                 return View("NotFound");
-            } 
+            }
             else
-            {                
-                user.Supervisor = model.Supervisor;
-                user.Document = model.Document;
-                user.Name = model.Name;
-                user.Lastname = model.Lastname;
-                user.EntryDate = model.EntryDate;
-
-                //Actualizar el rol
-                var userRoles = await userManager.GetRolesAsync(user);
-                var previousRole = userRoles.FirstOrDefault();
-                if(previousRole != null) { await userManager.RemoveFromRoleAsync(user, previousRole); }
-                await userManager.AddToRoleAsync(user, selectedRole.Name);
-
-
-                var result = await userManager.UpdateAsync(user);
-                if (result.Succeeded)
+            {
+                int supervisor = GetSupervisorIdByName(model.Supervisor);
+                if (supervisor == 0)
                 {
-                    return RedirectToAction("ListUsers");
-                } 
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError("", "No se encontró ningún supervisor con este nombre");
+                    List<IdentityRole> allRoles = new List<IdentityRole>();
+                    allRoles = roleManager.Roles.ToList();
+                    model.RolesList = allRoles.Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.Name
+                    });
                 }
-            }         
+                else
+                {
+                    user.Supervisor = supervisor;
+                    user.Document = model.Document;
+                    user.Name = model.Name;
+                    user.Lastname = model.Lastname;
+                    user.EntryDate = model.EntryDate;
+
+                    //Actualizar el rol
+                    var userRoles = await userManager.GetRolesAsync(user);
+                    var previousRole = userRoles.FirstOrDefault();
+                    if (previousRole != null) { await userManager.RemoveFromRoleAsync(user, previousRole); }
+                    await userManager.AddToRoleAsync(user, selectedRole.Name);
+
+
+                    var result = await userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("ListUsers");
+                    }
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
             return View(model);
         }
-        
-        
+
+
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await userManager.FindByIdAsync(id);
 
-            if(user == null)
+            if (user == null)
             {
                 ViewBag.ErrorMessage = $"El usuario con ID = {id} no fue encontrado";
                 return View("NotFound");
@@ -326,6 +343,45 @@ namespace SMU.Controllers
                 return View("ListUsers");
             }
         }
+
+
+        #endregion
+
+
+        #region Metodos auxiliares
+
+        private int GetSupervisorIdByName(string supName)
+        {
+            if (!String.IsNullOrEmpty(supName))
+            {
+                string supervisor = supName.ToLower();
+                var users = userManager.Users;
+                foreach (AppUser u in users)
+                {
+                    string userName = u.Name + " " + u.Lastname;
+                    if (userName.ToLower().Equals(supervisor))
+                    {
+                        return u.Document;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        private string GetSupervisorNameById(int document)
+        {
+            var users = userManager.Users;
+            foreach (AppUser u in users)
+            {
+                if (u.Document == document)
+                {
+                    return u.Name + " " + u.Lastname;
+                }
+            }
+            return " ";
+        }
+
+        #endregion
 
 
     }

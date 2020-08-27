@@ -11,18 +11,21 @@ namespace SMU.ViewModels
 {
     public class ManageSubordinatesRequestsViewModel
     {
+
+        #region Atributos
+
         [DisplayName("ID")]
         public int Id { get; set; }
 
         [DisplayName("Empleado")]
-        public string UserRequesting { get; set; }        
+        public string UserRequesting { get; set; }
 
         [DisplayName("Tipo")]
-        public RequestType Type { get; set; }        
+        public RequestType Type { get; set; }
 
-        [DisplayName("Desde")]        
+        [DisplayName("Desde")]
         public DateTime BeginDate { get; set; }
-                
+
         [DisplayName("Hasta")]
         public DateTime EndDate { get; set; }
 
@@ -32,7 +35,7 @@ namespace SMU.ViewModels
         [DisplayName("Estado")]
         public Status Status { get; set; }
 
-        
+        #endregion
 
     }
 }

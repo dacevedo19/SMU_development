@@ -8,6 +8,9 @@ namespace SMU.ViewModels
 {
     public class ResetPasswordViewModel
     {
+
+        #region Atributos
+
         [Required]
         [EmailAddress]
         public string Email { get; set; }
@@ -23,5 +26,8 @@ namespace SMU.ViewModels
         public string ConfirmPassword { get; set; }
 
         public string Token { get; set; }
+
+        #endregion
+
     }
 }
