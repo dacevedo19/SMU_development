@@ -1,4 +1,9 @@
-﻿@model IEnumerable<ManageSubordinatesRequestsViewModel>
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web;
+
+@model IPagedList<ManageSubordinatesRequestsViewModel>
+
 @{
     ViewData["Title"] = "Solicitudes de empleados";
 }
@@ -8,69 +13,86 @@
 
 @if (Model.Any())
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.UserRequesting)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Type)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.BeginDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.EndDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.RequestDate)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Status)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <form method="get" action="@Url.Action("ManageAllRequests", new { search = Html.TextBox("search") })">
+        <div>            
+            <div class="form-group">
+                @Html.DisplayNameFor(model => model.First().SearchByName)
+                <input type="text" class="form-control" name="search" id="search" />
+                <br />
+                <input type="submit" value=" Filtrar " class="btn btn-primary">
+                <a class="btn btn-primary" style="background-color:salmon" asp-action="DeleteFilter"> Borrar filtro </a>
+            </div>
+
+        </div>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        @item.Id
-                    </td>
-                    <td>
-                        @item.UserRequesting
-                    </td>
-                    <td>
-                        @item.Type
-                    </td>
-                    <td>
-                        @item.BeginDate.ToShortDateString()
-                    </td>
-                    <td>
-                        @item.EndDate.ToShortDateString()
-                    </td>
-                    <td>
-                        @item.RequestDate
-                    </td>
-                    <td>
-                        @item.Status
-                    </td>
-                    @if (item.Status == Status.Procesada)
-                    {
-                    <td>
-                        <a asp-action="AcceptRequest" asp-route-id="@item.Id">Aceptar</a> |
-                        <a asp-action="RejectRequest" asp-route-id="@item.Id">Rechazar</a>
-                    </td>
-                    }
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().UserRequesting)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().Type)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().BeginDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().EndDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().RequestDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.First().Status)
+                    </th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                            @item.UserRequesting
+                        </td>
+                        <td>
+                            @item.Type
+                        </td>
+                        <td>
+                            @item.BeginDate.ToShortDateString()
+                        </td>
+                        <td>
+                            @item.EndDate.ToShortDateString()
+                        </td>
+                        <td>
+                            @item.RequestDate
+                        </td>
+                        <td>
+                            @item.Status
+                        </td>
+                        @if (item.Status == Status.Procesada)
+                        {
+                            <td>
+                                <a asp-action="AcceptRequest" asp-route-id="@item.Id">Aceptar</a> |
+                                <a asp-action="RejectRequest" asp-route-id="@item.Id">Rechazar</a>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @Html.PagedListPager(Model, page => Url.Action("ManageAllRequests", new { page }),
+        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions()
+            {
+            Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
+        })
+    </form>
 }
 else
 {

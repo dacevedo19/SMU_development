@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SMU.Models;
 using SMU.ViewModels;
+using X.PagedList;
+using X.PagedList.Mvc;
 
 
 namespace SMU.Controllers
@@ -23,6 +25,7 @@ namespace SMU.Controllers
         private readonly UserManager<AppUser> userManager;
         private readonly IRequestManager requestManager;
         private readonly IWebHostEnvironment hostingEnvironment;
+        static string searchTemp = "";
 
         public RequestController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, 
             IRequestManager requestManager, IWebHostEnvironment hostingEnvironment)
@@ -94,11 +97,11 @@ namespace SMU.Controllers
 
 
         [HttpGet]
-        public IActionResult MyRequests()
+        public IActionResult MyRequests(int? page)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
-            return View(userRequests);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
+                return View(userRequests);            
         }
 
 
@@ -158,28 +161,70 @@ namespace SMU.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> ManageAllRequestsAsync()
+        public async Task<IActionResult> ManageAllRequests(string search, int? page)
         {
             List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
+            List<ManageSubordinatesRequestsViewModel> aux = new List<ManageSubordinatesRequestsViewModel>();
             List<Request> requests = requestManager.GetRequests();
+
+            string searchLower;
 
             foreach (Request r in requests)
             {
-                AppUser loggedUser = await userManager.FindByIdAsync(r.UserId);
+                AppUser userRequesting = await userManager.FindByIdAsync(r.UserId);
                 ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
                 {
                     Id = r.Id,
-                    UserRequesting = loggedUser.Name + " " + loggedUser.Lastname,
+                    UserRequesting = userRequesting.Name + " " + userRequesting.Lastname,
                     Type = r.Type,
                     BeginDate = r.BeginDate,
                     EndDate = r.EndDate,
                     RequestDate = r.RequestDate,
                     Status = r.Status
                 };
-                model.Add(m);
+                aux.Add(m);
+                aux.Sort();
             }
 
-            return View(model);
+            if (String.IsNullOrEmpty(search)) // Si search es null se está moviendo de página
+            {
+                if (!String.IsNullOrEmpty(searchTemp)) // Si searchTemp no es null, se está moviendo de página con filtro 
+                {               
+
+                    searchLower = searchTemp;
+
+                    foreach (ManageSubordinatesRequestsViewModel a in aux)
+                    {
+                        string aLower = a.UserRequesting.ToLower();
+                        if (aLower.Contains(searchLower))
+                        {
+                            model.Add(a);
+                        }
+                    }
+                    return View(model.ToPagedList(page ?? 1, 20));
+
+                } 
+                else // Se está moviendo de página sin filtro
+                {
+                    return View(aux.ToPagedList(page ?? 1, 20));
+                }
+
+            } 
+            else // está filtrando con un nombre nuevo
+            {
+                searchLower = search.ToLower();
+                searchTemp = searchLower;
+
+                foreach (ManageSubordinatesRequestsViewModel a in aux)
+                {
+                    string aLower = a.UserRequesting.ToLower();
+                    if (aLower.Contains(searchLower))
+                    {
+                        model.Add(a);
+                    }
+                }
+                return View(model.ToPagedList(page ?? 1, 20));
+            } 
         }
 
         public IActionResult AcceptSubordinateRequest(int id)
@@ -215,17 +260,39 @@ namespace SMU.Controllers
         [HttpPost]
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult IsDateInFuture([Bind(Prefix = "BeginDate")] string aDate)
+        public ActionResult TenWorkingDaysFromToday([Bind(Prefix = "BeginDate")] string aDate)
         {
+
             try
             {
-                var date = DateTime.Parse(aDate);
-                if (date > DateTime.Today) { return Json(true); }
-                else { return Json("Debe seleccionar una fecha futura"); }
+                var userdate = DateTime.Parse(aDate);
+                var tenWorkingDaysFromToday = DateTime.Today;
+                var tempDate = DateTime.Today;
+                while(tempDate <= DateTime.Today.AddDays(14))
+                {
+                    if(tempDate.DayOfWeek == DayOfWeek.Saturday && tempDate.DayOfWeek == DayOfWeek.Sunday)
+                    {                        
+                        tenWorkingDaysFromToday = tenWorkingDaysFromToday.AddDays(1);
+                    }
+                    tenWorkingDaysFromToday = tenWorkingDaysFromToday.AddDays(1);
+                    tempDate = tempDate.AddDays(1);
+                }
+
+                if (userdate >= tenWorkingDaysFromToday) 
+                { 
+                    return Json(true); 
+                }
+                else { return Json("Debe seleccionar una fecha a partir de los próximos 10 días"); }
             } catch
             {
                 return Json("Datos inválidos");
             }
+        }
+
+        public ActionResult DeleteFilter()
+        {
+            searchTemp = "";
+            return RedirectToAction("ManageAllRequests");
         }
 
         private SelectList GetRequestTypes()
@@ -283,7 +350,7 @@ namespace SMU.Controllers
             return subordinatesRequests;
         }
 
-
+        
         #endregion
 
     }
