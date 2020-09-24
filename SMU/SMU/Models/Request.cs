@@ -33,6 +33,9 @@ namespace SMU.Models
         [DisplayName("Adjunto")]
         public string AttachmentPath { get; set; }
 
+        [DisplayName("Adjunto")]
+        public string AttachmentPath2 { get; set; }
+
         #endregion
 
         #region Constructores

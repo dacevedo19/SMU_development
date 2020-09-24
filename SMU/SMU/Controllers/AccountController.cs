@@ -51,10 +51,14 @@ namespace SMU.Controllers
                         Name = model.Name,
                         Lastname = model.Lastname,
                         Supervisor = supervisor,
-                        EntryDate = model.EntryDate
+                        EntryDate = model.EntryDate,
+                        Active = true,
+                        EmailConfirmed = true
+                        
                     };
-                    var result = await userManager.CreateAsync(user, model.Password);
-                    if (result.Succeeded)
+                    var resultCreateUser = await userManager.CreateAsync(user, model.Password);
+                    var resultAddToRole = await userManager.AddToRoleAsync(user, "Empleado");
+                    if (resultCreateUser.Succeeded && resultAddToRole.Succeeded)
                     {
                         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
                         var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, Request.Scheme);
@@ -75,7 +79,7 @@ namespace SMU.Controllers
                         return View("Error");
 
                     }
-                    foreach (var error in result.Errors)
+                    foreach (var error in resultCreateUser.Errors)
                     {
                         ModelState.AddModelError("", error.Description);
                     }

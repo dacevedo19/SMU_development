@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SMU.Models;
 using SMU.ViewModels;
+using X.PagedList;
 
 namespace SMU.Controllers
 {
@@ -17,6 +18,7 @@ namespace SMU.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
+        static string searchTemp = "";
 
         public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
         {
@@ -222,10 +224,15 @@ namespace SMU.Controllers
 
 
         [HttpGet]
-        public IActionResult ListUsers()
+        public IActionResult ListUsers(string search, int? page)
         {
-            var users = userManager.Users;
-            return View(users);
+            List<AppUser> model = new List<AppUser>();
+            List<AppUser> aux;
+            aux = userManager.Users.ToList();
+
+            Filter(search, page, model, aux);
+            
+            return View();
         }
 
 
@@ -261,6 +268,7 @@ namespace SMU.Controllers
                 Value = s.Id.ToString(),
                 Text = s.Name
             });
+            
             return View(model);
         }
 
@@ -297,12 +305,23 @@ namespace SMU.Controllers
                     user.Name = model.Name;
                     user.Lastname = model.Lastname;
                     user.EntryDate = model.EntryDate;
+                    user.Active = model.Active;
 
-                    //Actualizar el rol
+                    //Actualizar el rol                    
                     var userRoles = await userManager.GetRolesAsync(user);
                     var previousRole = userRoles.FirstOrDefault();
-                    if (previousRole != null) { await userManager.RemoveFromRoleAsync(user, previousRole); }
-                    await userManager.AddToRoleAsync(user, selectedRole.Name);
+                    if (previousRole != null)
+                    {
+                        await userManager.RemoveFromRoleAsync(user, previousRole);
+                        if (selectedRole != null) { await userManager.AddToRoleAsync(user, selectedRole.Name); }
+                        else { await userManager.AddToRoleAsync(user, previousRole); }
+                    }
+                    else
+                    {
+                        if (selectedRole != null) { await userManager.AddToRoleAsync(user, selectedRole.Name); }
+                        else { await userManager.AddToRoleAsync(user, "Empleado"); }
+                    }
+                        
 
 
                     var result = await userManager.UpdateAsync(user);
@@ -314,6 +333,9 @@ namespace SMU.Controllers
                     {
                         ModelState.AddModelError("", error.Description);
                     }
+                   
+
+                    
                 }
             }
             return View(model);
@@ -331,7 +353,9 @@ namespace SMU.Controllers
             }
             else
             {
-                var result = await userManager.DeleteAsync(user);
+                user.Active = false;
+                var result = await userManager.UpdateAsync(user);
+
                 if (result.Succeeded)
                 {
                     return RedirectToAction("ListUsers");
@@ -379,6 +403,60 @@ namespace SMU.Controllers
                 }
             }
             return " ";
+        }
+
+        private ActionResult Filter(string search, int? page, List<AppUser> model, List<AppUser> aux)
+        {
+            string searchLower;
+            ViewBag.searchFilter = search;
+
+            if (String.IsNullOrEmpty(search)) // Si search es null se está moviendo de página
+            {
+                if (!String.IsNullOrEmpty(searchTemp)) // Si searchTemp no es null, se está moviendo de página con filtro 
+                {
+                    searchLower = searchTemp;
+                    ViewBag.searchFilter = searchTemp;
+
+                    foreach (AppUser a in aux)
+                    {
+                        string fullName = a.Name + " " + a.Lastname;
+                        string fullNameLower = fullName.ToLower();
+                        if (fullNameLower.Contains(searchLower))
+                        {
+                            model.Add(a);
+                        }
+                    }
+                    return View(model.ToPagedList(page ?? 1, 5));
+
+                }
+                else // Se está moviendo de página sin filtro
+                {
+                    return View(aux.ToPagedList(page ?? 1, 5));
+                }
+
+            }
+            else // está filtrando con un nombre nuevo
+            {
+                searchLower = search.ToLower();
+                searchTemp = searchLower;
+
+                foreach (AppUser a in aux)
+                {
+                    string fullName = a.Name + " " + a.Lastname;
+                    string fullNameLower = fullName.ToLower();
+                    if (fullNameLower.Contains(searchLower))
+                    {
+                        model.Add(a);
+                    }
+                }
+                return View(model.ToPagedList(page ?? 1, 5));
+            }
+        }
+
+        public ActionResult DeleteFilter()
+        {
+            searchTemp = "";
+            return RedirectToAction("ListUsers");
         }
 
         #endregion

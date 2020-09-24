@@ -66,7 +66,8 @@ namespace SMU.Models
                 Lastname = "Admin",
                 Supervisor = 77777777,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u2 = new AppUser
             {
@@ -77,7 +78,8 @@ namespace SMU.Models
                 Lastname = "McPherson",
                 Supervisor = 12355487,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u3 = new AppUser
             {
@@ -88,7 +90,8 @@ namespace SMU.Models
                 Lastname = "Bodder",
                 Supervisor = 12355487,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u4 = new AppUser
             {
@@ -99,7 +102,8 @@ namespace SMU.Models
                 Lastname = "Rothson",
                 Supervisor = 12355487,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u5 = new AppUser
             {
@@ -110,7 +114,8 @@ namespace SMU.Models
                 Lastname = "Perez",
                 Supervisor = 25416638,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u6 = new AppUser
             {
@@ -121,7 +126,8 @@ namespace SMU.Models
                 Lastname = "Gomez",
                 Supervisor = 25416638,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u7 = new AppUser
             {
@@ -132,7 +138,8 @@ namespace SMU.Models
                 Lastname = "Perdomo",
                 Supervisor = 14423695,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
             AppUser u8 = new AppUser
             {
@@ -143,7 +150,8 @@ namespace SMU.Models
                 Lastname = "Cajal",
                 Supervisor = 14423695,
                 EntryDate = System.DateTime.Today,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Active = true
             };
 
             users.Add(u1);

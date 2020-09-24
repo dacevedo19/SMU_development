@@ -47,6 +47,9 @@ namespace SMU.ViewModels
 
         public IEnumerable<SelectListItem> RolesList { get; set; }
 
+        [Display(Name ="Activo")]
+        public bool Active { get; set; }
+
 
         #endregion
 

@@ -1,4 +1,8 @@
-﻿@model IEnumerable<ManageSubordinatesRequestsViewModel>
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web;
+
+@model IPagedList<ManageSubordinatesRequestsViewModel>
 @{
     ViewData["Title"] = "Solicitudes de empleados a cargo";
 }
@@ -6,31 +10,41 @@
 <h1>Solicitudes de empleados a cargo</h1>
 <hr />
 
-@if (Model.Any()) { 
+@if (Model.Any())
+{
+<form method="get" action="@Url.Action("ManageSubordinatesRequests", new { search = Html.TextBox("search") })">
+
+    <div class="form-group">
+        <h4>Buscar por nombre</h4>
+        <input type="text" class="form-control" name="search" id="search" style="width:auto" value="@(ViewBag.searchFilter ?? String.Empty)" />
+        <br />
+        <input type="submit" value=" Filtrar " class="btn btn-primary">
+        <a class="btn btn-primary" style="background-color:salmon" asp-action="DeleteFilterManageSubordinatesRequests"> Borrar filtro </a>
+    </div>
 
     <table class="table">
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Id)
+                    @Html.DisplayNameFor(model => model.First().Id)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.UserRequesting)
+                    @Html.DisplayNameFor(model => model.First().UserRequesting)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Type)
+                    @Html.DisplayNameFor(model => model.First().Type)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.BeginDate)
+                    @Html.DisplayNameFor(model => model.First().BeginDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.EndDate)
+                    @Html.DisplayNameFor(model => model.First().EndDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.RequestDate)
+                    @Html.DisplayNameFor(model => model.First().RequestDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Status)
+                    @Html.DisplayNameFor(model => model.First().Status)
                 </th>
                 <th></th>
             </tr>
@@ -38,39 +52,49 @@
         <tbody>
             @foreach (var item in Model)
             {
-            <tr>
-                <td>
-                    @item.Id
-                </td>
-                <td>
-                    @item.UserRequesting
-                </td>
-                <td>
-                    @item.Type
-                </td>
-                <td>
-                    @item.BeginDate.ToShortDateString()
-                </td>
-                <td>
-                    @item.EndDate.ToShortDateString()
-                </td>
-                <td>
-                    @item.RequestDate
-                </td>
-                <td>
-                    @item.Status
-                </td>
-                @if (item.Status == Status.Procesada)
-                {
+                <tr>
                     <td>
-                        <a asp-action="AcceptSubordinateRequest" asp-route-id="@item.Id">Aceptar</a> |
-                        <a asp-action="RejectSubordinateRequest" asp-route-id="@item.Id">Rechazar</a>
+                        @item.Id
                     </td>
-                }
-            </tr>
+                    <td>
+                        @item.UserRequesting
+                    </td>
+                    <td>
+                        @item.Type
+                    </td>
+                    <td>
+                        @item.BeginDate.ToShortDateString()
+                    </td>
+                    <td>
+                        @item.EndDate.ToShortDateString()
+                    </td>
+                    <td>
+                        @item.RequestDate
+                    </td>
+                    <td>
+                        @EnumExtensions.GetDisplayName(item.Status)
+                    </td>
+                    @if (item.Status == Status.Procesada)
+                    {
+                        <td>
+                            <a class="btn btn-primary" asp-action="AcceptSubordinateRequest" 
+                               asp-route-id="@item.Id" style="background-color:darkgreen"> Aceptar </a> 
+
+                            <a class="btn btn-primary" asp-action="RejectSubordinateRequest" 
+                               asp-route-id="@item.Id" style="background-color:darkred"> Rechazar </a>
+                        </td>
+                    }
+                </tr>
             }
         </tbody>
     </table>
+
+    @Html.PagedListPager(Model, page => Url.Action("ManageSubordinatesRequests", new { page }),
+        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions()
+            {
+            Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
+            })
+</form>
 }
 else
 {

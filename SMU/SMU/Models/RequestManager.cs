@@ -58,7 +58,7 @@ namespace SMU.Models
         {          
             return context.Requests.ToList();
         }
-
+  
         public List<Request> GetRequestsByUserId(string id)
         {
             List<Request> requests = context.Requests.ToList();
@@ -66,10 +66,20 @@ namespace SMU.Models
 
             foreach(Request r in requests)
             {
-                if (r.UserId == id) { userRequests.Add(r); }
+                if (r.UserId == id) {  userRequests.Add(r); }
             }
-
             return userRequests;
+        }
+
+        public bool AcceptBySupervisor(int requestId)
+        {
+            Request r = Find(requestId);
+            if (r != null)
+            {
+                r.Status = Status.EnRecursosHumanos;
+                return Update(r);
+            }
+            else { return false; }
         }
 
         public bool Accept(int requestId)
@@ -93,5 +103,7 @@ namespace SMU.Models
             }
             else { return false; }
         }
+
+        
     }
 }

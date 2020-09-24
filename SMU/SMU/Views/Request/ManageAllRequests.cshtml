@@ -14,16 +14,15 @@
 @if (Model.Any())
 {
     <form method="get" action="@Url.Action("ManageAllRequests", new { search = Html.TextBox("search") })">
-        <div>            
-            <div class="form-group">
-                @Html.DisplayNameFor(model => model.First().SearchByName)
-                <input type="text" class="form-control" name="search" id="search" />
-                <br />
-                <input type="submit" value=" Filtrar " class="btn btn-primary">
-                <a class="btn btn-primary" style="background-color:salmon" asp-action="DeleteFilter"> Borrar filtro </a>
-            </div>
-
+                   
+        <div class="form-group">
+            <h4>Buscar por nombre</h4>
+            <input type="text" class="form-control" name="search" id="search" style="width:auto" value="@(ViewBag.searchFilter ?? String.Empty)" /> 
+            <br />
+            <input type="submit" value=" Filtrar " class="btn btn-primary">
+            <a class="btn btn-primary" style="background-color:salmon" asp-action="DeleteFilterAllRequests"> Borrar filtro </a>
         </div>
+        
         <table class="table">
             <thead>
                 <tr>
@@ -74,24 +73,28 @@
                             @item.RequestDate
                         </td>
                         <td>
-                            @item.Status
+                            @EnumExtensions.GetDisplayName(item.Status)
                         </td>
-                        @if (item.Status == Status.Procesada)
+                        @if (item.Status == Status.Procesada || item.Status == Status.EnRecursosHumanos)
                         {
                             <td>
-                                <a asp-action="AcceptRequest" asp-route-id="@item.Id">Aceptar</a> |
-                                <a asp-action="RejectRequest" asp-route-id="@item.Id">Rechazar</a>
+                                <a class="btn btn-primary" asp-action="AcceptRequest" 
+                                   asp-route-id="@item.Id" style="background-color:darkgreen"> Aceptar </a> 
+
+                                <a class="btn btn-primary" asp-action="RejectRequest" 
+                                   asp-route-id="@item.Id" style="background-color:darkred"> Rechazar </a>
                             </td>
                         }
                     </tr>
                 }
             </tbody>
         </table>
+
         @Html.PagedListPager(Model, page => Url.Action("ManageAllRequests", new { page }),
-        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions()
-            {
-            Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
-        })
+            new X.PagedList.Mvc.Core.Common.PagedListRenderOptions()
+                {
+                Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
+                })
     </form>
 }
 else

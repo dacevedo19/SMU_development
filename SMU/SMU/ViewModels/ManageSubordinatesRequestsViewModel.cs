@@ -35,12 +35,11 @@ namespace SMU.ViewModels
         [DisplayName("Estado")]
         public Status Status { get; set; }
 
-        [DisplayName("Buscar por nombre")]
-        public string SearchByName { get; set; }
-
         #endregion
 
         #region Methods
+
+        public ManageSubordinatesRequestsViewModel() {}
 
         public override bool Equals(object obj)
         {

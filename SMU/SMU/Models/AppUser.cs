@@ -32,6 +32,8 @@ namespace SMU.Models
         [Display(Name = "Fecha de entrada")]
         public DateTime EntryDate { get; set; }
                   
+        [Display(Name = "Activo")]
+        public bool Active { get; set; }
 
         #endregion
 

@@ -1,4 +1,8 @@
-﻿@model IEnumerable<Request>
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web;
+
+@model IPagedList<Request>
 @{
     ViewData["Title"] = "Mis solicitudes";
 }
@@ -15,22 +19,22 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.Id)
+                    @Html.DisplayNameFor(model => model.First().Id)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Type)
+                    @Html.DisplayNameFor(model => model.First().Type)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.BeginDate)
+                    @Html.DisplayNameFor(model => model.First().BeginDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.EndDate)
+                    @Html.DisplayNameFor(model => model.First().EndDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.RequestDate)
+                    @Html.DisplayNameFor(model => model.First().RequestDate)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Status)
+                    @Html.DisplayNameFor(model => model.First().Status)
                 </th>
                 <th></th>
             </tr>
@@ -55,9 +59,9 @@
                         @item.RequestDate
                     </td>
                     <td>
-                        @item.Status
+                        @EnumExtensions.GetDisplayName(item.Status)
                     </td>
-                    @if (item.Status == Status.Procesada)
+                    @if (item.Status == Status.Procesada || item.Status == Status.EnRecursosHumanos)
                     {
                         <td>
                             <div class="col-sm">
@@ -74,10 +78,17 @@
             }
         </tbody>
     </table>
+
+    @Html.PagedListPager(Model, page => Url.Action("MyRequests", new { page }),
+        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions()
+            {
+            Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
+            })
+
 }
 else
 {
-    <h4>No hay solicitudes a su nombre</h4>   
+    <h4>No hay solicitudes a su nombre</h4>
 }
 
 <div>

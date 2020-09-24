@@ -65,20 +65,80 @@ namespace SMU.Controllers
                 }
                 else
                 {
-                    string uniqueFileName = null;
-                    if (model.Attachment != null)
+                    string uniqueFileName;
+                    string uniqueFileName2;
+                    /*
+                    string attch1 = null;
+                    string attch2 = null;
+                    if (model.Attachment != null) { attch1 = model.Attachment.ToString(); }
+                    if (model.Attachment2 != null) { attch2 = model.Attachment.ToString(); }
+                    RequestType type = (RequestType)model.SelectedRequestType;
+
+                    if(type == RequestType.Vacacional && (attch1 != null || attch2 != null))
+                    {
+                        ModelState.AddModelError("", "No debe adjuntar un comprobante.");
+                        model.SelectedRequestType = ;
+                        return View(model);
+                    }
+
+                    if (attch1 == null && attch2 == null)
+                    {
+                        if (type == RequestType.Estudio || type == RequestType.Médica)
+                        {
+                            ModelState.AddModelError("", "Debe adjuntar un comprobante.");                            
+                            return View(model);
+                        }
+                    } else if (attch1 == null || attch2 == null)
+                    {
+                        if(type == RequestType.Estudio)
+                        {
+                            ModelState.AddModelError("", "Debe adjuntar el comprobante y su respectivo posterior.");
+                            return View(model);
+                        } else if (type == RequestType.Médica && attch1 == null)
+                        {
+                            ModelState.AddModelError("", "Debe adjuntar un solo comprobante donde dice adjuntar comprobante y dejar vacío donde dice posterior.");
+                            return View(model);
+                        }
+                    }
+                    if(attch1 != null && attch2 == null) 
                     {
                         string uploadsFolder = Path.Combine(hostingEnvironment.WebRootPath, "images");
                         uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Attachment.FileName;
                         string filePath = Path.Combine(uploadsFolder, uniqueFileName);
                         model.Attachment.CopyTo(new FileStream(filePath, FileMode.Create));
+                        request.AttachmentPath = uniqueFileName;
+                    } else if (attch1 != null && attch2 != null)
+                    {*/
+
+                    if (model.Attachment != null && model.Attachment2 != null)
+                    {
+                        string uploadsFolder = Path.Combine(hostingEnvironment.WebRootPath, "images");
+
+                        uniqueFileName = Guid.NewGuid().ToString() + "_" + model.Attachment.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        model.Attachment.CopyTo(new FileStream(filePath, FileMode.Create));
+                        request.AttachmentPath = uniqueFileName;
+
+                        uniqueFileName2 = Guid.NewGuid().ToString() + "_" + model.Attachment2.FileName;
+                        string filePath2 = Path.Combine(uploadsFolder, uniqueFileName2);
+                        model.Attachment2.CopyTo(new FileStream(filePath2, FileMode.Create));
+                        request.AttachmentPath2 = uniqueFileName2;
+                    } else
+                    {
+                        request.AttachmentPath = null;
+                        request.AttachmentPath2 = null;
                     }
+                    /*
+                    } else
+                    {
+                        request.AttachmentPath = null;
+                        request.AttachmentPath2 = null;
+                    }*/
+
                     request.UserId = userId;
                     request.RequestDate = DateTime.Now;
                     request.BeginDate = model.BeginDate;
-                    request.EndDate = model.EndDate;
-                    request.AttachmentPath = uniqueFileName;
-                    request.Status = Status.Procesada;
+                    request.EndDate = model.EndDate;                    
                     request.Type = (RequestType)model.SelectedRequestType;
 
                     if (requestManager.Create(request))
@@ -101,7 +161,7 @@ namespace SMU.Controllers
         {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
-                return View(userRequests);            
+                return View(userRequests.ToPagedList(page ?? 1, 10));            
         }
 
 
@@ -111,8 +171,9 @@ namespace SMU.Controllers
 
             if (request == null)
             {
+                ViewBag.ErrorTitle = "Ocurrió un error";
                 ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
-                return View("NotFound");
+                return View("Error");
             }
             else
             {
@@ -131,32 +192,22 @@ namespace SMU.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> ManageSubordinatesRequests()
+        public async Task<IActionResult> ManageSubordinatesRequests(string search, int? page)
         {
+            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
+            List<ManageSubordinatesRequestsViewModel> aux;
+
             string loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             AppUser loggedUser = await userManager.FindByIdAsync(loggedUserId);
-            int loggedUserDocument = loggedUser.Document;
-            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
+            int loggedUserDocument = loggedUser.Document;           
 
             List<Request> subordinatesRequests = GetSubordinateRequests(loggedUserDocument);
 
-            foreach (Request r in subordinatesRequests)
-            {
-                AppUser requestUser = await userManager.FindByIdAsync(r.UserId);
-                ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
-                {
-                    Id = r.Id,
-                    UserRequesting = requestUser.Name + " " + requestUser.Lastname,
-                    Type = r.Type,
-                    BeginDate = r.BeginDate,
-                    EndDate = r.EndDate,
-                    RequestDate = r.RequestDate,
-                    Status = r.Status
-                };
-                model.Add(m);
-            }
+            aux = await RequestsToViewModel(subordinatesRequests);
 
-            return View(model);
+            Filter(search, page, model, aux);
+
+            return View();
         }
 
 
@@ -164,92 +215,131 @@ namespace SMU.Controllers
         public async Task<IActionResult> ManageAllRequests(string search, int? page)
         {
             List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
-            List<ManageSubordinatesRequestsViewModel> aux = new List<ManageSubordinatesRequestsViewModel>();
-            List<Request> requests = requestManager.GetRequests();
+            List<ManageSubordinatesRequestsViewModel> aux;
+            List<Request> requests = requestManager.GetRequests();            
 
-            string searchLower;
+            aux = await RequestsToViewModel(requests);
 
-            foreach (Request r in requests)
-            {
-                AppUser userRequesting = await userManager.FindByIdAsync(r.UserId);
-                ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
-                {
-                    Id = r.Id,
-                    UserRequesting = userRequesting.Name + " " + userRequesting.Lastname,
-                    Type = r.Type,
-                    BeginDate = r.BeginDate,
-                    EndDate = r.EndDate,
-                    RequestDate = r.RequestDate,
-                    Status = r.Status
-                };
-                aux.Add(m);
-                aux.Sort();
-            }
+            Filter(search, page, model, aux); 
 
-            if (String.IsNullOrEmpty(search)) // Si search es null se está moviendo de página
-            {
-                if (!String.IsNullOrEmpty(searchTemp)) // Si searchTemp no es null, se está moviendo de página con filtro 
-                {               
-
-                    searchLower = searchTemp;
-
-                    foreach (ManageSubordinatesRequestsViewModel a in aux)
-                    {
-                        string aLower = a.UserRequesting.ToLower();
-                        if (aLower.Contains(searchLower))
-                        {
-                            model.Add(a);
-                        }
-                    }
-                    return View(model.ToPagedList(page ?? 1, 20));
-
-                } 
-                else // Se está moviendo de página sin filtro
-                {
-                    return View(aux.ToPagedList(page ?? 1, 20));
-                }
-
-            } 
-            else // está filtrando con un nombre nuevo
-            {
-                searchLower = search.ToLower();
-                searchTemp = searchLower;
-
-                foreach (ManageSubordinatesRequestsViewModel a in aux)
-                {
-                    string aLower = a.UserRequesting.ToLower();
-                    if (aLower.Contains(searchLower))
-                    {
-                        model.Add(a);
-                    }
-                }
-                return View(model.ToPagedList(page ?? 1, 20));
-            } 
+            return View(); 
         }
 
         public IActionResult AcceptSubordinateRequest(int id)
         {
-            requestManager.Accept(id);
+            requestManager.AcceptBySupervisor(id);
             return RedirectToAction("ManageSubordinatesRequests");
         }
 
-        public IActionResult RejectSubordinateRequest(int id)
+        public async Task<IActionResult> RejectSubordinateRequest(int id)
         {
-            requestManager.Reject(id);
+            try
+            {
+                Request r = requestManager.Find(id);
+                if (r != null)
+                {
+                    requestManager.Reject(id);
+                    var user = await userManager.FindByIdAsync(r.UserId);
+
+                    // Notificar al mail
+                    Notification noti = new Notification
+                    {
+                        To = user.Email,
+                        Subject = "Su solicitud ha sido rechazada",
+                        Body = NotificationController.GetBodyForEmail(false, user, r)
+                    };
+
+                    if (NotificationController.SendEmail(noti)) { return RedirectToAction("ManageSubordinatesRequests"); }
+                    else
+                    {
+                        ViewBag.ErrorTitle = "Ocurrió un error";
+                        ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                        return View("Error");
+                    }
+                }
+            }
+            catch
+            {
+                ViewBag.ErrorTitle = "Ocurrió un error";
+                ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                return View("Error");
+            }
             return RedirectToAction("ManageSubordinatesRequests");
         }
 
-        public IActionResult AcceptRequest(int id)
+        public async Task<IActionResult> AcceptRequest(int id)
         {
-            requestManager.Accept(id);
+            try
+            {
+                Request r = requestManager.Find(id);
+                if (r != null)
+                {
+                    requestManager.Accept(id);
+                    var user = await userManager.FindByIdAsync(r.UserId);
+
+                    // Notificar al mail
+                    Notification noti = new Notification
+                    {
+                        To = user.Email,
+                        Subject = "Su solicitud ha sido aceptada",
+                        Body = NotificationController.GetBodyForEmail(true, user, r)
+                    };
+
+                    if (NotificationController.SendEmail(noti)) { return RedirectToAction("ManageAllRequests"); } 
+                    else
+                    {
+                        ViewBag.ErrorTitle = "Ocurrió un error";
+                        ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                        return View("Error");
+                    }                    
+                }
+            } catch
+            {
+                ViewBag.ErrorTitle = "Ocurrió un error";
+                ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                return View("Error");
+            }
+            
             return RedirectToAction("ManageAllRequests");
         }
 
-        public IActionResult RejectRequest(int id)
+        public async Task<IActionResult> RejectRequest(int id)
         {
-            requestManager.Reject(id);
+            try
+            {
+                Request r = requestManager.Find(id);
+                if (r != null)
+                {
+                    requestManager.Reject(id);
+                    var user = await userManager.FindByIdAsync(r.UserId);
+
+                    // Notificar al mail
+                    Notification noti = new Notification
+                    {
+                        To = user.Email,
+                        Subject = "Su solicitud ha sido rechazada",
+                        Body = NotificationController.GetBodyForEmail(false, user, r)
+                    };
+
+                    if (NotificationController.SendEmail(noti)) { return RedirectToAction("ManageAllRequests"); }
+                    else
+                    {
+                        ViewBag.ErrorTitle = "Ocurrió un error";
+                        ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                        return View("Error");
+                    }
+                }
+            }
+            catch
+            {
+                ViewBag.ErrorTitle = "Ocurrió un error";
+                ViewBag.ErrorMessage = $"La solicitud con ID = {id} no fue encontrada";
+                return View("Error");
+            }
+
             return RedirectToAction("ManageAllRequests");
         }
+
 
         #endregion
 
@@ -289,10 +379,16 @@ namespace SMU.Controllers
             }
         }
 
-        public ActionResult DeleteFilter()
+        public ActionResult DeleteFilterAllRequests()
         {
             searchTemp = "";
             return RedirectToAction("ManageAllRequests");
+        }
+
+        public ActionResult DeleteFilterManageSubordinatesRequests()
+        {
+            searchTemp = "";
+            return RedirectToAction("ManageSubordinatesRequests");
         }
 
         private SelectList GetRequestTypes()
@@ -350,7 +446,80 @@ namespace SMU.Controllers
             return subordinatesRequests;
         }
 
+        private async Task<List<ManageSubordinatesRequestsViewModel>> RequestsToViewModel(List<Request> requests)
+        {
+            List<ManageSubordinatesRequestsViewModel> returnList = new List<ManageSubordinatesRequestsViewModel>();
+            if (requests.Count > 0)
+            {                
+                foreach (Request r in requests)
+                {
+                    AppUser userRequesting = await userManager.FindByIdAsync(r.UserId);
+                    ManageSubordinatesRequestsViewModel m = new ManageSubordinatesRequestsViewModel
+                    {
+                        Id = r.Id,
+                        UserRequesting = userRequesting.Name + " " + userRequesting.Lastname,
+                        Type = r.Type,
+                        BeginDate = r.BeginDate,
+                        EndDate = r.EndDate,
+                        RequestDate = r.RequestDate,
+                        Status = r.Status
+                    };
+                    returnList.Add(m);
+                    returnList.Sort();
+                }
+            }
+
+            return returnList;
+        }
         
+        private ActionResult Filter(string search, int? page, List<ManageSubordinatesRequestsViewModel> model, List<ManageSubordinatesRequestsViewModel> aux)
+        {
+            string searchLower;
+            ViewBag.searchFilter = search;
+
+            if (String.IsNullOrEmpty(search)) // Si search es null se está moviendo de página
+            {
+                if (!String.IsNullOrEmpty(searchTemp)) // Si searchTemp no es null, se está moviendo de página con filtro 
+                {
+
+                    searchLower = searchTemp;
+                    ViewBag.searchFilter = searchTemp;
+
+                    foreach (ManageSubordinatesRequestsViewModel a in aux)
+                    {
+                        string aLower = a.UserRequesting.ToLower();
+                        if (aLower.Contains(searchLower))
+                        {
+                            model.Add(a);
+                        }
+                    }
+                    return View(model.ToPagedList(page ?? 1, 5));
+
+                }
+                else // Se está moviendo de página sin filtro
+                {
+                    return View(aux.ToPagedList(page ?? 1, 5));
+                }
+
+            }
+            else // está filtrando con un nombre nuevo
+            {
+                searchLower = search.ToLower();
+                searchTemp = searchLower;
+
+                foreach (ManageSubordinatesRequestsViewModel a in aux)
+                {
+                    string aLower = a.UserRequesting.ToLower();
+                    if (aLower.Contains(searchLower))
+                    {
+                        model.Add(a);
+                    }
+                }
+                return View(model.ToPagedList(page ?? 1, 5));
+            }
+        }
+               
+
         #endregion
 
     }

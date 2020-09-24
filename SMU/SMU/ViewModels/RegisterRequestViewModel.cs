@@ -32,8 +32,11 @@ namespace SMU.ViewModels
         [DisplayName("Hasta")]
         public DateTime EndDate { get; set; }
 
-        [DisplayName("Adjuntar archivo")]
+        [DisplayName("Adjuntar comprobante")]
         public IFormFile Attachment { get; set; }
+
+        [DisplayName("Adjuntar posterior")]
+        public IFormFile Attachment2 { get; set; }
 
         public SelectList ListOfTypes { get; set; }
 
