@@ -18,12 +18,14 @@ namespace SMU.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
+        private readonly IRequestManager requestManager;
         static string searchTemp = "";
 
-        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
+        public AdministrationController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IRequestManager requestManager)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
+            this.requestManager = requestManager;
         }
 
 
@@ -321,12 +323,12 @@ namespace SMU.Controllers
                         if (selectedRole != null) { await userManager.AddToRoleAsync(user, selectedRole.Name); }
                         else { await userManager.AddToRoleAsync(user, "Empleado"); }
                     }
-                        
 
+                    if (!model.Active) { DeleteUserRequests(model.Id); }
 
                     var result = await userManager.UpdateAsync(user);
                     if (result.Succeeded)
-                    {
+                    {                        
                         return RedirectToAction("ListUsers");
                     }
                     foreach (var error in result.Errors)
@@ -356,8 +358,8 @@ namespace SMU.Controllers
                 user.Active = false;
                 var result = await userManager.UpdateAsync(user);
 
-                if (result.Succeeded)
-                {
+                if (result.Succeeded && DeleteUserRequests(id))
+                {                    
                     return RedirectToAction("ListUsers");
                 }
                 foreach (var error in result.Errors)
@@ -405,6 +407,22 @@ namespace SMU.Controllers
             return " ";
         }
 
+        private bool DeleteUserRequests(string id)
+        {
+            try
+            {
+                List<Request> userRequests = requestManager.GetRequestsByUserId(id);
+                foreach (Request r in userRequests)
+                {
+                    if (r.Status == Status.Procesada || r.Status == Status.EnRecursosHumanos)
+                    {
+                        requestManager.Reject(r.Id);
+                    }
+                }
+                return true;
+            } catch { return false; }            
+        }
+
         private ActionResult Filter(string search, int? page, List<AppUser> model, List<AppUser> aux)
         {
             string searchLower;
@@ -426,12 +444,12 @@ namespace SMU.Controllers
                             model.Add(a);
                         }
                     }
-                    return View(model.ToPagedList(page ?? 1, 5));
+                    return View(model.ToPagedList(page ?? 1, 10));
 
                 }
                 else // Se está moviendo de página sin filtro
                 {
-                    return View(aux.ToPagedList(page ?? 1, 5));
+                    return View(aux.ToPagedList(page ?? 1, 10));
                 }
 
             }
@@ -449,7 +467,7 @@ namespace SMU.Controllers
                         model.Add(a);
                     }
                 }
-                return View(model.ToPagedList(page ?? 1, 5));
+                return View(model.ToPagedList(page ?? 1, 10));
             }
         }
 

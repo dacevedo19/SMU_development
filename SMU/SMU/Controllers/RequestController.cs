@@ -44,10 +44,10 @@ namespace SMU.Controllers
         {
             var model = new RegisterRequestViewModel();
             ViewBag.Today = DateTime.Today;
-            model.ListOfTypes = GetRequestTypes();
+            //model.ListOfTypes = GetRequestTypes();
+            ViewBag.ListOfTypes = Enum.GetValues(typeof(RequestType)).Cast<RequestType>();
             return View(model);
         }
-
 
         [HttpPost]
         public IActionResult RegisterRequest(RegisterRequestViewModel model)
@@ -58,26 +58,34 @@ namespace SMU.Controllers
 
             if (model != null)
             {
+                if (!TenWorkingDaysFromToday2(model.BeginDate)) 
+                {
+                    if ((RequestType)model.SelectedRequestType == RequestType.Vacacional)
+                    {
+                        ModelState.AddModelError("", "Debe seleccionar una fecha a partir de los próximos 10 días.");
+                        return View(model);
+                    }
+                }
+
                 if (model.BeginDate > model.EndDate)
                 {
-                    ModelState.AddModelError("", "La fecha de fin debe ser mayor a la fecha de inicio.");
-                    model.ListOfTypes = GetRequestTypes();
+                    ModelState.AddModelError("", "La fecha de fin debe ser mayor a la fecha de inicio.");                    
+                    return View(model);
                 }
                 else
                 {
                     string uniqueFileName;
                     string uniqueFileName2;
-                    /*
+                    
                     string attch1 = null;
                     string attch2 = null;
                     if (model.Attachment != null) { attch1 = model.Attachment.ToString(); }
-                    if (model.Attachment2 != null) { attch2 = model.Attachment.ToString(); }
+                    if (model.Attachment2 != null) { attch2 = model.Attachment2.ToString(); }
                     RequestType type = (RequestType)model.SelectedRequestType;
 
                     if(type == RequestType.Vacacional && (attch1 != null || attch2 != null))
                     {
-                        ModelState.AddModelError("", "No debe adjuntar un comprobante.");
-                        model.SelectedRequestType = ;
+                        ModelState.AddModelError("", "No debe adjuntar un comprobante.");                        
                         return View(model);
                     }
 
@@ -96,7 +104,7 @@ namespace SMU.Controllers
                             return View(model);
                         } else if (type == RequestType.Médica && attch1 == null)
                         {
-                            ModelState.AddModelError("", "Debe adjuntar un solo comprobante donde dice adjuntar comprobante y dejar vacío donde dice posterior.");
+                            ModelState.AddModelError("", "Debe adjuntar el comprobante donde dice \"Adjuntar comprobante\".");
                             return View(model);
                         }
                     }
@@ -108,7 +116,7 @@ namespace SMU.Controllers
                         model.Attachment.CopyTo(new FileStream(filePath, FileMode.Create));
                         request.AttachmentPath = uniqueFileName;
                     } else if (attch1 != null && attch2 != null)
-                    {*/
+                    {
 
                     if (model.Attachment != null && model.Attachment2 != null)
                     {
@@ -128,12 +136,8 @@ namespace SMU.Controllers
                         request.AttachmentPath = null;
                         request.AttachmentPath2 = null;
                     }
-                    /*
-                    } else
-                    {
-                        request.AttachmentPath = null;
-                        request.AttachmentPath2 = null;
-                    }*/
+                    
+                    } 
 
                     request.UserId = userId;
                     request.RequestDate = DateTime.Now;
@@ -159,9 +163,10 @@ namespace SMU.Controllers
         [HttpGet]
         public IActionResult MyRequests(int? page)
         {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
-                return View(userRequests.ToPagedList(page ?? 1, 10));            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            List<Request> userRequests = requestManager.GetRequestsByUserId(userId);
+            userRequests.Sort();
+            return View(userRequests.ToPagedList(page ?? 1, 10));            
         }
 
 
@@ -346,7 +351,8 @@ namespace SMU.Controllers
 
         #region Metodos auxiliares
 
-
+        /*
+        
         [HttpPost]
         [HttpGet]
         [AllowAnonymous]
@@ -376,6 +382,36 @@ namespace SMU.Controllers
             } catch
             {
                 return Json("Datos inválidos");
+            }
+        }
+
+        */
+        private bool TenWorkingDaysFromToday2(DateTime aDate)
+        {
+            try
+            {
+                var userdate = aDate;
+                var tenWorkingDaysFromToday = DateTime.Today;
+                var tempDate = DateTime.Today;
+                while (tempDate <= DateTime.Today.AddDays(14))
+                {
+                    if (tempDate.DayOfWeek == DayOfWeek.Saturday && tempDate.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        tenWorkingDaysFromToday = tenWorkingDaysFromToday.AddDays(1);
+                    }
+                    tenWorkingDaysFromToday = tenWorkingDaysFromToday.AddDays(1);
+                    tempDate = tempDate.AddDays(1);
+                }
+
+                if (userdate >= tenWorkingDaysFromToday)
+                {
+                    return true;
+                }
+                else { return false; }
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -493,12 +529,12 @@ namespace SMU.Controllers
                             model.Add(a);
                         }
                     }
-                    return View(model.ToPagedList(page ?? 1, 5));
+                    return View(model.ToPagedList(page ?? 1, 10));
 
                 }
                 else // Se está moviendo de página sin filtro
                 {
-                    return View(aux.ToPagedList(page ?? 1, 5));
+                    return View(aux.ToPagedList(page ?? 1, 10));
                 }
 
             }

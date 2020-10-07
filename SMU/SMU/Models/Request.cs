@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace SMU.Models
 {
-    public class Request
+    public class Request : IComparable<Request>
     {
 
         #region Atributos
@@ -42,6 +42,34 @@ namespace SMU.Models
         public Request() { }
 
         #endregion
-    
+
+        #region Metodos
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (!(obj is Request a)) return false;
+            if (this.Id == a.Id) return true;
+            else return false;
+
+        }
+
+        public int SortByDate(DateTime rqstDate1, DateTime rqstDate2)
+        {
+            return rqstDate1.CompareTo(rqstDate2);
+        }
+
+        int IComparable<Request>.CompareTo(Request rqst)
+        {
+            if (rqst == null) { return 0; }
+            else
+            {
+                return rqst.RequestDate.CompareTo(this.RequestDate);
+            }
+        }
+
+
+        #endregion
+
     }
 }

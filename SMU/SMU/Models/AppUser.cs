@@ -22,10 +22,12 @@ namespace SMU.Models
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
+        [Display(Name = "Nombre")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]
+        [Display(Name = "Apellido")]
         public string Lastname { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]

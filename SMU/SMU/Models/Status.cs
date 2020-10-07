@@ -7,7 +7,7 @@ namespace SMU.Models
 {    
     public enum Status
     {
-        [Display(Name ="Procesada")]
+        [Display(Name ="Enviada")]
         Procesada = 0,        
 
         [Display(Name = "Aceptada")]

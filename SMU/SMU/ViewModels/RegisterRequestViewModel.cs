@@ -24,8 +24,7 @@ namespace SMU.ViewModels
         public RequestType Type { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [DisplayName("Desde")]
-        [Remote(action: "TenWorkingDaysFromToday", controller: "Request", ErrorMessage = "La fecha debe ser en el futuro")]
+        [DisplayName("Desde")]        
         public DateTime BeginDate { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]

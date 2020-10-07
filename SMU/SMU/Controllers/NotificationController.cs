@@ -46,7 +46,7 @@ namespace SMU.Controllers
 
             return "Estimado/a " + user.Name + " " + user.Lastname + ":  \n"
                         + " \n"
-                        + "Le notificamos que su solicitud con ID: " + req.Id + " ha sido " + resultado + " por parte de Recursos Humanos. \n"
+                        + "Le notificamos que su solicitud con ID: " + req.Id + " ha sido " + resultado + ". \n"
                         + " \n"
                         + "Si desea obtener mas información, comuníquese con el departamento de Recursos Humanos indicando el ID de su solicitud. \n"
                         + " \n"

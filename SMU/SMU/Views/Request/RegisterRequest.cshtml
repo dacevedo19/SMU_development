@@ -13,10 +13,8 @@
 
             <div class="form-group row">
                 <label asp-for="SelectedRequestType" class="control-label"></label>
-                <div class="col-sm-10">
-                    <div>
-                        @Html.DropDownListFor(m => m.SelectedRequestType, Model.ListOfTypes)
-                    </div>
+                <div class="col-sm-10">                    
+                    <select asp-for="SelectedRequestType" asp-items="@Html.GetEnumSelectList<RequestType>()"></select>                        
                 </div>
             </div>
             <div class="form-group">
@@ -48,26 +46,26 @@
                 <div class="col-sm.10">
                     <input type="submit" value="Solicitar" class="btn btn-primary" />
                     <a class="btn btn-danger" style="width:auto"
-                       asp-controller="Home" asp-action="Index"> Cancelar </a>
+                        asp-controller="Home" asp-action="Index"> Cancelar </a>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Atrás</a>
-</div>
+    <div>
+        <a asp-controller="Home" asp-action="Index">Atrás</a>
+    </div>
 
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('.custom-file-input').on("change", function () {
-                var fileName = $(this).val().split("\\").pop();
-                $(this).next('.custom-file-label').html(fileName);
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                $('.custom-file-input').on("change", function () {
+                    var fileName = $(this).val().split("\\").pop();
+                    $(this).next('.custom-file-label').html(fileName);
+                });
             });
-        });
-    </script>
-}
+        </script>
+    }
 
