@@ -31,14 +31,18 @@ namespace SMU.ViewModels
         public string ConfirmPassword { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        [ForeignKey("AppUser")]
-        [Display(Name = "Nombre de su supervisor")]
-        public string Supervisor { get; set; }
-
-        [Required(ErrorMessage = "Este campo es obligatorio")]
         [Range(1000000, 300000000, ErrorMessage = "Número de documento inválido")]
         [Display(Name = "Cédula de identidad")]
         public int Document { get; set; }
+
+        [Required(ErrorMessage = "Este campo es obligatorio")]
+        [Display(Name = "Número de empleado")]
+        public int EmployeeID { get; set; }
+
+        [Required(ErrorMessage = "Este campo es obligatorio")]
+        [ForeignKey("AppUser")]
+        [Display(Name = "Nombre de su supervisor")]
+        public string Supervisor { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(30, ErrorMessage = "La cantidad máxima de caracteres es 30")]

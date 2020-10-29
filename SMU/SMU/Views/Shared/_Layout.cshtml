@@ -63,6 +63,21 @@
                                 </div>
                             </li>
 
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Reclamos</a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Claim" asp-action="RegisterClaim">Generar reclamo</a>
+                                    <a class="dropdown-item" asp-area="" asp-controller="Claim" asp-action="MyRequests">Mis reclamos</a>
+
+                                    @if (User.IsInRole("RecursosHumanos") || User.IsInRole("SuperAdmin"))
+                                    {
+                                        <a class="dropdown-item" asp-area="" asp-controller="Claim" asp-action="ManageAllClaims">Gestionar todos los reclamos</a>
+                                    }
+                                </div>
+                            </li>
+
                             @if (User.IsInRole("SuperAdmin"))
                             {
                                 <li class="nav-item dropdown">

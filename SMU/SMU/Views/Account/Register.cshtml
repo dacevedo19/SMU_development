@@ -38,6 +38,11 @@
                 <span asp-validation-for="Document" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="EmployeeID" class="control-label"></label>
+                <input asp-for="EmployeeID" type="number" class="form-control" />
+                <span asp-validation-for="EmployeeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
@@ -49,7 +54,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="EntryDate" class="control-label"></label>
-                <input asp-for="EntryDate" type ="date" class="form-control" />
+                <input asp-for="EntryDate" type="date" class="form-control" />
                 <span asp-validation-for="EntryDate" class="text-danger"></span>
             </div>
 

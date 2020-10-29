@@ -33,6 +33,9 @@
                         @Html.DisplayNameFor(model => model.First().Name)
                     </th>
                     <th>
+                        @Html.DisplayNameFor(model => model.First().EmployeeID)
+                    </th>
+                    <th>
                         @Html.DisplayNameFor(model => model.First().Supervisor)
                     </th>
                     <th>
@@ -47,32 +50,35 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>
-                            @item.Name @item.Lastname
-                        </td>
-                        <td>
-                            @item.Supervisor
-                        </td>
-                        <td>
-                            @item.Email
-                        </td>
-                        <td>
-                            @item.Active
-                        </td>     
-                        <td>
-                            <a class="btn btn-primary" style="width:auto"
-                               asp-controller="Administration" asp-action="EditUser" asp-route-id="@item.Id"> Editar </a>
-                            @if (item.Active)
-                            {
-                                <button asp-action="DeleteUser" asp-route-id="@item.Id" class="btn btn-danger" style="width:auto"
-                                        onclick="return confirm('¿Está seguro de que quiere eliminar el usuario @item.Name @item.Lastname?')">
-                                    Eliminar
-                                </button>
-                            }
-                        </td>
-                        
-                    </tr>
+                <tr>
+                    <td>
+                        @item.Name @item.Lastname
+                    </td>
+                    <td>
+                        @item.EmployeeID
+                    </td>
+                    <td>
+                        @item.Supervisor
+                    </td>
+                    <td>
+                        @item.Email
+                    </td>
+                    <td>
+                        @item.Active
+                    </td>
+                    <td>
+                        <a class="btn btn-primary" style="width:auto"
+                           asp-controller="Administration" asp-action="EditUser" asp-route-id="@item.Id"> Editar </a>
+                        @if (item.Active)
+                        {
+                            <button asp-action="DeleteUser" asp-route-id="@item.Id" class="btn btn-danger" style="width:auto"
+                                    onclick="return confirm('¿Está seguro de que quiere eliminar el usuario @item.Name @item.Lastname?')">
+                                Eliminar
+                            </button>
+                        }
+                    </td>
+
+                </tr>
                 }
             </tbody>
         </table>

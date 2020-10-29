@@ -48,6 +48,7 @@ namespace SMU.Controllers
                         UserName = model.Email,
                         Email = model.Email,
                         Document = model.Document,
+                        EmployeeID = model.EmployeeID,
                         Name = model.Name,
                         Lastname = model.Lastname,
                         Supervisor = supervisor,
@@ -212,6 +213,7 @@ namespace SMU.Controllers
                 {
                     user.Supervisor = supervisor;
                     user.Document = model.Document;
+                    user.EmployeeID = model.EmployeeID;
                     user.Name = model.Name;
                     user.Lastname = model.Lastname;
 

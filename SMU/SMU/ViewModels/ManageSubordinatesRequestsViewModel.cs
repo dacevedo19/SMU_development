@@ -20,6 +20,9 @@ namespace SMU.ViewModels
         [DisplayName("Empleado")]
         public string UserRequesting { get; set; }
 
+        [DisplayName("Documento del empleado")]
+        public int UserRequestingId { get; set; }
+
         [DisplayName("Tipo")]
         public RequestType Type { get; set; }
 

@@ -1,0 +1,45 @@
+﻿@model RegisterClaimViewModel
+@{
+    ViewData["Title"] = "Generar reclamo";
+}
+
+<h1>Generar reclamo</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form enctype="multipart/form-data" asp-action="RegisterClaim">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Text" class="control-label"></label>
+                <input asp-for="Text" class="form-control"/>
+                <span asp-validation-for="Text" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClaimDate" class="control-label"></label>
+                <input asp-for="ClaimDate" type="date" class="form-control" value="ViewBag.Today" />
+                <span asp-validation-for="ClaimDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attachment" class="control-label"></label>
+                <div class="custom-file">
+                    <input asp-for="Attachment" class="form-control custom-file-input" />
+                    <label class="custom-file-label">Seleccione un archivo</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm.10">
+                    <input type="submit" value="Enviar" class="btn btn-primary" />
+                    <a class="btn btn-danger" style="width:auto"
+                       asp-controller="Home" asp-action="Index"> Cancelar </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Atrás</a>
+</div>

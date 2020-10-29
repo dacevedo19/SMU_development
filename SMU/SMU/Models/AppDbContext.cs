@@ -37,6 +37,7 @@ namespace SMU.Models
         
         //DbSets
         public DbSet<SMU.Models.Request> Requests { get; set; }
+        public DbSet<SMU.Models.UserClaim> Claims { get; set; }
                 
     }
 }

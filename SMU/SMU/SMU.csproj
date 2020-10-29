@@ -23,6 +23,8 @@
     <Compile Remove="Migrations\20200824085810_Add_Seed_Data_For_Users.Designer.cs" />
     <Compile Remove="Migrations\20200827000403_Final_Migration_In_Demo.cs" />
     <Compile Remove="Migrations\20200827000403_Final_Migration_In_Demo.Designer.cs" />
+    <Compile Remove="Migrations\20201029051328_Add_EmployeeID_Column_To_AppUser.cs" />
+    <Compile Remove="Migrations\20201029051328_Add_EmployeeID_Column_To_AppUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

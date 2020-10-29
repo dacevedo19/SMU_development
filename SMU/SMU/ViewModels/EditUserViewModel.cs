@@ -25,6 +25,10 @@ namespace SMU.ViewModels
         public int Document { get; set; }
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
+        [Display(Name = "Número de empleado")]
+        public int EmployeeID { get; set; }
+
+        [Required(ErrorMessage = "Este campo es obligatorio")]
         [EmailAddress]
         public string Email { get; set; }
 

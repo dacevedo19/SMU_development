@@ -32,6 +32,7 @@ namespace SMU
             }).AddXmlSerializerFormatters();
 
             services.AddScoped<IRequestManager, RequestManager>();
+            services.AddScoped<IClaimManager, ClaimManager>();
             services.AddScoped<ISeedData, SeedData>();
 
             services.AddDbContext<AppDbContext>(

@@ -27,6 +27,7 @@ namespace SMU.Controllers
         private readonly IWebHostEnvironment hostingEnvironment;
         static string searchTemp = "";
 
+        //CONSTRUCTOR
         public RequestController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, 
             IRequestManager requestManager, IWebHostEnvironment hostingEnvironment)
         {
@@ -43,8 +44,7 @@ namespace SMU.Controllers
         public IActionResult RegisterRequest()
         {
             var model = new RegisterRequestViewModel();
-            ViewBag.Today = DateTime.Today;
-            //model.ListOfTypes = GetRequestTypes();
+            ViewBag.Today = DateTime.Today;            
             ViewBag.ListOfTypes = Enum.GetValues(typeof(RequestType)).Cast<RequestType>();
             return View(model);
         }
@@ -74,6 +74,9 @@ namespace SMU.Controllers
                 }
                 else
                 {
+
+                    #region Attachment part
+
                     string uniqueFileName;
                     string uniqueFileName2;
                     
@@ -137,7 +140,9 @@ namespace SMU.Controllers
                         request.AttachmentPath2 = null;
                     }
                     
-                    } 
+                    }
+
+                    #endregion
 
                     request.UserId = userId;
                     request.RequestDate = DateTime.Now;
@@ -199,8 +204,7 @@ namespace SMU.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageSubordinatesRequests(string search, int? page)
         {
-            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
-            List<ManageSubordinatesRequestsViewModel> aux;
+            List<ManageSubordinatesRequestsViewModel> model;
 
             string loggedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             AppUser loggedUser = await userManager.FindByIdAsync(loggedUserId);
@@ -208,26 +212,57 @@ namespace SMU.Controllers
 
             List<Request> subordinatesRequests = GetSubordinateRequests(loggedUserDocument);
 
-            aux = await RequestsToViewModel(subordinatesRequests);
+            model = await RequestsToViewModel(subordinatesRequests);
 
-            Filter(search, page, model, aux);
+            
 
-            return View();
+            return View(model.ToPagedList(page ?? 1, 10));
         }
 
 
         [HttpGet]
         public async Task<IActionResult> ManageAllRequests(string search, int? page)
         {
-            List<ManageSubordinatesRequestsViewModel> model = new List<ManageSubordinatesRequestsViewModel>();
-            List<ManageSubordinatesRequestsViewModel> aux;
+            List<ManageSubordinatesRequestsViewModel> model;
             List<Request> requests = requestManager.GetRequests();            
 
-            aux = await RequestsToViewModel(requests);
+            model = await RequestsToViewModel(requests);
 
-            Filter(search, page, model, aux); 
+            if (search != null)
+            {
+                try
+                {
+                    int searchid = Int32.Parse(search);
+                    model = FilterByID(search, model);
+                    ViewBag.searchFilter = searchTemp;
+                    return View(model.ToPagedList(page ?? 1, 10));
+                }
+                catch
+                {
+                    model = FilterByName(search, model);
+                    ViewBag.searchFilter = searchTemp;
+                    return View(model.ToPagedList(page ?? 1, 10));
+                }
+            }
+            else if (search == null && searchTemp != null && page != null)
+            {
+                try
+                {
+                    int searchid = Int32.Parse(searchTemp);
+                    model = FilterByID(searchTemp, model);
+                    ViewBag.searchFilter = searchTemp;
+                    return View(model.ToPagedList(page ?? 1, 10));
+                }
+                catch
+                {
+                    model = FilterByName(searchTemp, model);
+                    ViewBag.searchFilter = searchTemp;
+                    return View(model.ToPagedList(page ?? 1, 10));
+                }
+            }
+            
 
-            return View(); 
+            return View(model.ToPagedList(page ?? 1, 10)); 
         }
 
         public IActionResult AcceptSubordinateRequest(int id)
@@ -494,6 +529,7 @@ namespace SMU.Controllers
                     {
                         Id = r.Id,
                         UserRequesting = userRequesting.Name + " " + userRequesting.Lastname,
+                        UserRequestingId = userRequesting.Document,
                         Type = r.Type,
                         BeginDate = r.BeginDate,
                         EndDate = r.EndDate,
@@ -507,9 +543,10 @@ namespace SMU.Controllers
 
             return returnList;
         }
-        
-        private ActionResult Filter(string search, int? page, List<ManageSubordinatesRequestsViewModel> model, List<ManageSubordinatesRequestsViewModel> aux)
+
+        private List<ManageSubordinatesRequestsViewModel> FilterByName(string search, List<ManageSubordinatesRequestsViewModel> model)
         {
+            List<ManageSubordinatesRequestsViewModel> aux = new List<ManageSubordinatesRequestsViewModel>();
             string searchLower;
             ViewBag.searchFilter = search;
 
@@ -521,20 +558,20 @@ namespace SMU.Controllers
                     searchLower = searchTemp;
                     ViewBag.searchFilter = searchTemp;
 
-                    foreach (ManageSubordinatesRequestsViewModel a in aux)
+                    foreach (ManageSubordinatesRequestsViewModel a in model)
                     {
                         string aLower = a.UserRequesting.ToLower();
                         if (aLower.Contains(searchLower))
                         {
-                            model.Add(a);
+                            aux.Add(a);
                         }
                     }
-                    return View(model.ToPagedList(page ?? 1, 10));
+                    return aux;
 
                 }
                 else // Se está moviendo de página sin filtro
                 {
-                    return View(aux.ToPagedList(page ?? 1, 10));
+                    return model;
                 }
 
             }
@@ -543,18 +580,61 @@ namespace SMU.Controllers
                 searchLower = search.ToLower();
                 searchTemp = searchLower;
 
-                foreach (ManageSubordinatesRequestsViewModel a in aux)
+                foreach (ManageSubordinatesRequestsViewModel a in model)
                 {
                     string aLower = a.UserRequesting.ToLower();
                     if (aLower.Contains(searchLower))
                     {
-                        model.Add(a);
+                        aux.Add(a);
                     }
                 }
-                return View(model.ToPagedList(page ?? 1, 5));
+                return aux;
             }
         }
-               
+
+        private List<ManageSubordinatesRequestsViewModel> FilterByID(string search, List<ManageSubordinatesRequestsViewModel> model)
+        {
+            List<ManageSubordinatesRequestsViewModel> aux = new List<ManageSubordinatesRequestsViewModel>();
+            ViewBag.searchFilter = search;
+
+            if (String.IsNullOrEmpty(search)) // Si search es null se está moviendo de página
+            {
+                if (!String.IsNullOrEmpty(searchTemp)) // Si searchTemp no es null, se está moviendo de página con filtro 
+                {
+
+                    search = searchTemp;
+                    ViewBag.searchFilter = searchTemp;
+
+                    foreach (ManageSubordinatesRequestsViewModel a in model)
+                    {
+                        if ((a.UserRequestingId.ToString()).Equals(search))
+                        {
+                            aux.Add(a);
+                        }
+                    }
+                    return aux;
+
+                }
+                else // Se está moviendo de página sin filtro
+                {
+                    return model;
+                }
+
+            }
+            else // está filtrando con un nombre nuevo
+            {
+                searchTemp = search;
+
+                foreach (ManageSubordinatesRequestsViewModel a in model)
+                {
+                    if ((a.UserRequestingId.ToString()).Equals(search))
+                    {
+                        aux.Add(a);
+                    }
+                }
+                return aux;
+            }
+        }
 
         #endregion
 

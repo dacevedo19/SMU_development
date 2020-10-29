@@ -8,10 +8,13 @@ namespace SMU.Models
     public class AppUser : IdentityUser
     {
 
-        #region Atributos             
+        #region Atributos            
 
         [Required(ErrorMessage = "Este campo es obligatorio")]
-        
+        [Display(Name = "Número de empleado")]
+        public int EmployeeID { get; set; }
+
+        [Required(ErrorMessage = "Este campo es obligatorio")]        
         [Display(Name = "Cedula del supervisor")]
         public int Supervisor { get; set; }
 

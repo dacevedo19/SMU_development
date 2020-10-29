@@ -10,12 +10,11 @@
 <h1>Solicitudes de empleados a cargo</h1>
 <hr />
 
-@if (Model.Any())
-{
+
 <form method="get" action="@Url.Action("ManageSubordinatesRequests", new { search = Html.TextBox("search") })">
 
     <div class="form-group">
-        <h4>Buscar por nombre</h4>
+        <h4>Buscar por nombre o documento</h4>
         <input type="text" class="form-control" name="search" id="search" style="width:auto" value="@(ViewBag.searchFilter ?? String.Empty)" />
         <br />
         <input type="submit" value=" Filtrar " class="btn btn-primary">
@@ -95,11 +94,8 @@
             Display = X.PagedList.Web.Common.PagedListDisplayMode.IfNeeded
             })
 </form>
-}
-else
-{
-    <h4>No existen solicitudes de empleados a su cargo.</h4>
-}
+
+
 
 <div>
     <a asp-controller="Home" asp-action="Index">Atrás</a>
